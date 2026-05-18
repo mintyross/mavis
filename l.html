@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mavis - Smart Home Dashboard</title>
+    <style>
+        :root {
+            --bg-color: #3b4856;
+            --glass-bg: rgba(255, 255, 255, 0.08);
+            --glass-border: rgba(255, 255, 255, 0.15);
+            --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            --text-main: #e2e8f0;
+            --text-muted: #94a3b8;
+            --accent-yellow: rgba(245, 158, 11, 0.25);
+            --border-yellow: rgba(245, 158, 11, 0.5);
+            --color-electricity: rgba(253, 224, 71, 0.15);
+            --color-internet: rgba(74, 222, 128, 0.15);
+            --color-water: rgba(96, 165, 250, 0.15);
+            --color-gas: rgba(248, 113, 113, 0.15);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: radial-gradient(circle at 20% 30%, #4a5a6b 0%, #3b4856 70%);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 260px 1fr 1fr;
+            gap: 24px;
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        /* Glassmorphism Base Styles */
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 24px;
+            box-shadow: var(--glass-shadow);
+            transition: all 0.3s ease;
+        }
+
+        .glass-panel:hover {
+            border-color: rgba(255, 255, 255, 0.25);
+            box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.4);
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            text-align: center;
+            padding: 10px 0;
+            background: linear-gradient(120deg, #fff, var(--text-muted));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .address-box {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 12px;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .address-icon {
+            background: #eab308;
+            padding: 8px;
+            border-radius: 10px;
+            color: #000;
+            font-weight: bold;
+        }
+
+        .nav-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            list-style: none;
+        }
+
+        .nav-item {
+            padding: 12px 16px;
+            border-radius: 14px;
+            cursor: pointer;
+            font-size: 14px;
+            color: var(--text-muted);
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-main);
+        }
+
+        .nav-item.active {
+            background: var(--accent-yellow);
+            border: 1px solid var(--border-yellow);
+            color: #fef08a;
+            font-weight: 600;
+        }
+
+        /* Middle Column Styles */
+        .center-column {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .panel-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-main);
+        }
+
+        .notification-item {
+            background: rgba(245, 158, 11, 0.15);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            border-radius: 14px;
+            padding: 12px 16px;
+            font-size: 13px;
+            margin-bottom: 12px;
+            color: #fef08a;
+        }
+
+        .notification-item.info {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--glass-border);
+            color: var(--text-main);
+        }
+
+        /* Grid pill buttons */
+        .pill-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .pill-btn {
+            padding: 14px;
+            border-radius: 16px;
+            border: 1px solid var(--glass-border);
+            background: rgba(255, 255, 255, 0.03);
+            color: var(--text-main);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s ease;
+            backdrop-filter: blur(5px);
+        }
+
+        .pill-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        /* Specific Template Colors */
+        .btn-orange { background: rgba(249, 115, 22, 0.25); border-color: rgba(249, 115, 22, 0.4); }
+        .btn-blue { background: rgba(59, 130, 246, 0.25); border-color: rgba(59, 130, 246, 0.4); }
+        .btn-purple { background: rgba(168, 85, 247, 0.25); border-color: rgba(168, 85, 247, 0.4); }
+        .btn-dark-blue { background: rgba(71, 85, 105, 0.4); border-color: rgba(148, 163, 184, 0.3); }
+
+        /* Mood Colors */
+        .btn-green { background: rgba(34, 197, 94, 0.25); border-color: rgba(34, 197, 94, 0.4); }
+        .btn-pink { background: rgba(236, 72, 153, 0.25); border-color: rgba(236, 72, 153, 0.4); }
+
+        /* Right Column Styles */
+        .right-column {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .metric-card {
+            border-radius: 20px;
+            padding: 20px;
+            border: 1px solid var(--glass-border);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .metric-label {
+            font-size: 13px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .metric-value {
+            font-size: 20px;
+            font-weight: 700;
+            display: flex;
+            align-items: baseline;
+            gap: 4px;
+        }
+
+        .metric-unit {
+            font-size: 14px;
+            font-weight: 400;
+            color: var(--text-muted);
+        }
+
+        /* Player Styles */
+        .player-panel {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .album-art {
+            width: 64px;
+            height: 64px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #f43f5e, #10b981);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .track-info {
+            flex-grow: 1;
+            overflow: hidden;
+        }
+
+        .track-title {
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            margin-bottom: 2px;
+        }
+
+        .track-artist {
+            font-size: 12px;
+            color: var(--text-muted);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .player-controls {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 16px;
+            padding: 0 8px;
+        }
+
+        .control-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 16px;
+            transition: color 0.2s;
+        }
+
+        .control-btn:hover {
+            color: var(--text-main);
+        }
+
+        .control-btn.play-pause {
+            font-size: 28px;
+            color: var(--text-main);
+        }
+
+        /* Responsive Layout */
+        @media (max-width: 968px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            body {
+                padding: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard">
+        <!-- Sidebar Navigation -->
+        <aside class="glass-panel sidebar">
+            <div class="logo">Mavis</div>
+            
+            <div class="address-box">
+                <span class="address-icon">🏠</span>
+                <div>
+                    <div style="font-weight: 600;">Мій будиночок</div>
+                    <div style="color: var(--text-muted); font-size: 11px;">вул. Перемоги, 125-а</div>
+                </div>
+            </div>
+
+            <ul class="nav-menu">
+                <li class="nav-item active"><span>🎛️</span> Головна сторінка</li>
+                <li class="nav-item"><span>🗺️</span> Карта приладів</li>
+                <li class="nav-item"><span>📊</span> Статистика</li>
+                <li class="nav-item"><span>⚙️</span> Дії з шаблонами</li>
+                <li class="nav-item"><span>🔌</span> Мої прилади</li>
+                <li class="nav-item"><span>👥</span> Члени сім'ї</li>
+                <li class="nav-item"><span>⚙️</span> Налаштування</li>
+            </ul>
+        </aside>
+
+        <!-- Center Column -->
+        <main class="center-column">
+            <!-- Notifications -->
+            <section class="glass-panel">
+                <div class="panel-title">🔔 Сповіщення</div>
+                <div class="notification-item">
+                    Наталія отримала доступ до кімнати кухня
+                </div>
+                <div class="notification-item info">
+                    До системи був доданий новий користувач
+                </div>
+            </section>
+
+            <!-- Usage Templates -->
+            <section class="glass-panel">
+                <div class="panel-title">📋 Шаблони користування</div>
+                <div class="pill-grid">
+                    <button class="pill-btn btn-orange">Комфорт</button>
+                    <button class="pill-btn btn-blue">Робота</button>
+                    <button class="pill-btn btn-purple">Вечірка</button>
+                    <button class="pill-btn btn-dark-blue">Далека поїздка</button>
+                </div>
+            </section>
+
+            <!-- Mood Settings -->
+            <section class="glass-panel">
+                <div class="panel-title">🧠 Настрій</div>
+                <div class="pill-grid">
+                    <button class="pill-btn btn-green">Веселий</button>
+                    <button class="pill-btn btn-blue">Серйозний</button>
+                    <button class="pill-btn btn-purple">Сумний</button>
+                    <button class="pill-btn btn-pink">Романтичний</button>
+                </div>
+            </section>
+        </main>
+
+        <!-- Right Column -->
+        <div class="right-column">
+            <!-- Resource Metrics -->
+            <section class="glass-panel metrics-grid" style="padding: 16px;">
+                <div class="metric-card" style="background: var(--color-electricity);">
+                    <div class="metric-label">Електроенергія</div>
+                    <div class="metric-value">⚡ 3 <span class="metric-unit">кВт</span></div>
+                </div>
+                <div class="metric-card" style="background: var(--color-internet);">
+                    <div class="metric-label">Інтернет-трафік</div>
+                    <div class="metric-value">🌐 126 <span class="metric-unit">Гб</span></div>
+                </div>
+                <div class="metric-card" style="background: var(--color-water);">
+                    <div class="metric-label">Водопостачання</div>
+                    <div class="metric-value">💧 15 <span class="metric-unit">куб</span></div>
+                </div>
+                <div class="metric-card" style="background: var(--color-gas);">
+                    <div class="metric-label">Газопостачання</div>
+                    <div class="metric-value">🔥 172 <span class="metric-unit">куб</span></div>
+                </div>
+            </section>
+
+            <!-- Music Player -->
+            <section class="glass-panel">
+                <div class="player-panel">
+                    <div class="album-art">👹</div>
+                    <div class="track-info">
+                        <div class="track-title">BENZI BOX</div>
+                        <div class="track-artist">DANGERDOOM, MF DOOM, Danger Mouse, CeeLo Green</div>
+                    </div>
+                </div>
+                <div class="player-controls">
+                    <button class="control-btn">🔀</button>
+                    <button class="control-btn">⏮</button>
+                    <button class="control-btn play-pause">▶️</button>
+                    <button class="control-btn">⏭</button>
+                    <button class="control-btn">🔁</button>
+                </div>
+            </section>
+        </div>
+    </div>
+
+</body>
+</html>
