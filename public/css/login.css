@@ -1,0 +1,93 @@
+.input-group {
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 40px;
+    box-shadow: 
+        0 8px 32px rgba(31, 38, 135, 0.37),
+        inset 0 2px 2px rgba(255, 255, 255, 0.5),
+        inset 0 -2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.Login {
+    justify-self: center;
+    margin: auto;
+    max-width: 600px;
+    
+}
+
+.Login form{
+    max-width: 550px;
+    display: flex;
+    flex-flow: column;
+    justify-content: center;
+}
+
+.Login h1 {
+    display: flex;
+    margin: 20px auto 20px auto;
+    text-align: center;
+}
+
+.input-group {
+    display: flex;
+    max-width: 510px;
+    width: 100%;
+}
+
+.Login .input-group {
+    display: grid;
+    grid-template-columns: repeat(2, auto); 
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px; 
+    padding: 15px;
+    margin: 15px 20px 15px 20px;
+}
+
+.Login label {
+    font-size: 1.5rem;
+}
+
+.Login input#email, .Login input#password, .Login input#passwordConfirm, .Login input#username {
+    width: 100%;             /* Розтягується на весь доступний простір... */
+    max-width: 240px;        /* ...але не ширше за 240px */
+
+    padding: 5px 20px;      /* Перше число — відступи верх/низ, друге — ліво/право (для округлих країв) */
+    font-size: 1rem;         /* Стандартний читабельний розмір шрифту */
+    
+    border-radius: 9999px;   /* Повна овальність (ефект капсули) для будь-якої висоти */
+    box-sizing: border-box;  /* Залишаємо, захищає від виходу за рамки контейнера */
+}
+
+
+.Login .login-btn {
+    margin: 20px auto;
+    text-align: center;
+}
+
+.register-redirect {
+    display: flex;
+    justify-content: space-between;
+    margin: 20px;
+}
+
+.register-redirect a, .register-redirect {
+    color: rgba(34, 34, 34, 0.6);
+}
+
+@media (max-width: 620px) {
+    .Login {
+        margin: auto 20px auto 20px;
+    }
+    .Login .input-group {
+        grid-template-columns: repeat(1, auto);
+        justify-content: center;
+        min-width: 240px;
+        width: calc(100% - 40px);
+    }
+
+    .Login .buttonSmall p {
+        font-size: 1.5rem;
+    }
+
+
+}

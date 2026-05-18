@@ -1,0 +1,668 @@
+/* ==========================================
+   1. БАЗОВЕ СКИДАННЯ СТИЛІВ ТА ШРИФТИ
+   ========================================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    width: 100%;
+    min-height: 100vh;
+    font-family: sans-serif;
+    background-image: url('../images/mavis-background.webp');
+    background-repeat: repeat-y;
+    background-size: cover;
+    background-attachment:scroll;
+}
+
+h1, h2, h3, h4, h5, h6, p, a {
+    color: rgb(34, 34, 34);
+    text-decoration: none;
+}
+
+/* Налаштування посилань: текст і час строго в один ряд */
+.leftNavButton a, .Button a, .buttonSmall a {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    height: 100%;
+    color: inherit;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+/* ==========================================
+   2. ЕФЕКТ GLASSMORPHISM (Оригінальні бекплейти)
+   ========================================== */
+.leftNavButton, .Logo, .Mavis, .objectHeader, .Button, .buttonSmall, .Object, .Primary, .Secondary {
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 40px;
+    box-shadow: 
+        0 8px 32px rgba(31, 38, 135, 0.37),
+        inset 0 2px 2px rgba(255, 255, 255, 0.5),
+        inset 0 -2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.leftNavButton, .Logo, .Mavis, .objectHeader, .Button, .buttonSmall {
+    background: rgba(0, 0, 0, 0);
+}
+
+.leftNavBar, .Object {
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 40px;
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: 
+        0 8px 32px rgba(31, 38, 135, 0.37),
+        inset 0 2px 2px rgba(255, 255, 255, 0.5),
+        inset 0 -2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.Primary {
+    background: rgba(255, 166, 0, 0.5);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+}
+
+.Secondary {
+    background: rgba(0, 0, 0, 0.20);
+}
+
+.Secondary p {
+    color: rgba(34, 34, 34, 0.8);
+}
+
+/* Ховер ефекти */
+.leftNavButton, .Button, .buttonSmall {
+    transition: transform 0.4s ease;
+}
+
+.leftNavButton:hover, .Button:hover, .buttonSmall:hover {
+    transform: scale(1.05);
+    box-shadow: 
+        0 8px 32px rgba(31, 38, 135, 0.15),
+        inset 0 2px 2px rgba(255, 255, 255, 0.5),
+        inset 0 -2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.leftNavButton:active, .Button:active, .buttonSmall:active {
+    transform: scale(0.9);
+}
+
+/* ==========================================
+   3. ДЕСКТОПНА СІТКА ТА САЙДБАР
+   ========================================== */
+.container {
+    position: relative;
+    height: 100vh;
+    display: flex;
+    justify-content: flex-start;
+}
+
+.leftSide {
+    height: auto;
+    width: 260px;
+    flex-shrink: 0;
+}
+
+.leftNavBar {
+    position: fixed;
+    width: 240px;
+    height: 596px;
+    margin: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 0;
+}
+
+.leftNavBar nav {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+.Mavis {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 200px;
+    height: 60px;
+    border-radius: 30px;
+    margin-bottom: 20px;
+}
+
+.Logo {
+    display: flex;
+    align-items: center;
+    width: 200px;
+    height: 112px;
+    border-radius: 30px;
+    margin: 0 20px 30px 20px;
+    padding: 0 10px;
+}
+
+.logoImage {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 12px;
+    background-color: orange;
+    border-radius: 20px;
+    margin-right: 10px;
+}
+
+.logoTextContainer {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.textDevider {
+    width: 100%;
+    height: 2px;
+    background-color: black;
+    margin: 5px 0;
+}
+
+/* Відновлення іконок та тексту меню в один ряд (Вимога 4) */
+.leftNavButton {
+    display: flex;
+    align-items: center;
+    width: 200px;
+    height: 60px;
+    border-radius: 30px;
+    margin: 10px 20px;
+}
+
+.leftNavBar img, .Object img {
+    max-height: 30px;
+    aspect-ratio: 1;
+}
+
+.leftNavButton img {
+    margin: 0 15px 0 20px;
+}
+
+.leftNavButton p, .Object p {
+    font-size: x-large;
+}
+
+.SettingsHotFix {
+    margin-top: 30px;
+}
+
+/* ==========================================
+   4. РОБОЧА ОБЛАСТЬ ТА ВІДЖЕТИ (Вимоги 1, 2, 3)
+   ========================================== */
+.objectArea {
+    display: grid;
+    grid-template-columns: repeat(3, auto); 
+    justify-content: flex-start; 
+    align-items: start;
+    gap: 40px; 
+    padding-top: 60px;
+    margin: auto 0 auto 60px;
+    height: auto;
+    width: max-content; 
+}
+
+.gridColumn {
+    display: flex;
+    flex-direction: row; /* Дозволяємо елементам за замовчуванням ставати в ряд */
+    flex-wrap: wrap;     /* Дозволяємо їм падати на новий рядок, якщо місця немає */
+    gap: 40px;
+    align-content: start;
+    width: 550px;        /* Жорстко фіксуємо ширину колони під розмір Medium/Large карт */
+}
+
+/* Гарантуємо, що великі та середні об'єкти займають всю ширину колони і стоять вертикально */
+.gridColumn .Medium,
+.gridColumn .Large {
+    width: 100% ; /* Розтягуються на всі 550px, змушуючи наступні блоки падати вниз */
+}
+
+/* Малі об'єкти тепер будуть спокійно сідати поруч один з одним (255px + 255px + 20px gap = 530px, що ідеально вписується в 550px) */
+.gridColumn .Small {
+    width: 255px ; /* Повертаємо їм рідний фіксований розмір для десктопу */
+    flex-grow: 0;            /* Забороняємо їм розтягуватися на всю ширину */
+}
+
+/* Загальний віджет */
+.Object {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+}
+
+.objectHeader {
+    display: flex;
+    align-items: center;
+    width: 510px;
+    height: 60px;
+    border-radius: 30px;
+    margin: 20px 20px 20px 20px;
+    padding: 0 20px;
+}
+
+.objectHeader img {
+    margin-right: 15px;
+}
+
+/* Спільний блок опцій для Medium та Large */
+.Object .objectOptions {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 0 20px 20px 20px;
+}
+
+/* Кнопки всередині великих та середніх віджетів (Вимога 1) */
+.Button {
+    display: flex;
+    align-items: center;
+    max-width: 510px;
+    width: 100%;
+    height: 60px;
+    border-radius: 30px;
+}
+
+.Button p, .buttonSmall p, .Square {
+    margin: 0 20px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex-grow: 1;
+    min-width: 0;
+}
+
+.Button .Time, .buttonSmall .Time {
+    font-size: x-large;
+    margin-left: auto;
+    padding-right: 20px;
+    flex-shrink: 0;
+}
+
+/* РОЗМІРИ КАРТОК */
+.Medium {
+    width: 550px;
+    height: 255px;
+}
+
+.Large {
+    width: 550px;
+    height: 550px;
+}
+
+/* Спеціальна сітка 2х2 для плитки лічильників */
+.Large .objectOptions {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    width: 510px;
+    height: 510px;
+    margin: 20px;
+}
+
+.Square {
+    display: flex;
+    flex-flow: column;
+    justify-items: center;
+    justify-content:flex-start;
+    max-height: 240px;
+    aspect-ratio: 1;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+}
+
+.Square h1 {
+    margin: 10% auto 5% auto;
+    font-size: 1.5rem;
+}
+
+.Square p {
+    margin: auto;
+    text-align: center;
+    align-self: center;
+}
+
+.Square .objectOptions {
+    display: flex;
+    width: fit-content;
+    height: fit-content;
+    justify-self:center;
+    flex-flow: column;
+}
+
+.Square img {
+    max-height: 80px;
+    aspect-ratio: 1;
+    margin: auto;
+}
+
+/* ВИПРАВЛЕНО: Малий віджет будує опції суворо в колонку (Вимога 2) */
+.Small {  
+    max-width: 255px;
+    max-height: 255px;
+}
+
+.Small .objectHeader {
+    width: 215px;
+}
+
+.Small .objectOptions {
+    display: flex;
+    flex-direction: column; /* Сувора колонка */
+    gap: 10px;
+    margin: 0 20px 20px 20px;
+}
+
+.buttonSmall {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: 60px;
+    border-radius: 30px;
+    min-width: 180px;
+    max-width: 215px;
+}
+
+.buttonSmall p {
+    text-align: center;
+}
+
+
+/* ==========================================
+   5. АДАПТИВНІСТЬ: ПЛАНШЕТИ ТА МОБІЛЬНІ
+   ========================================== */
+@media (max-width: 620px) {
+    body {
+        padding-bottom: 90px;
+    }
+
+    .container {
+        flex-direction: column;
+    }
+
+    .leftSide {
+        width: 100%;
+        height: 0;
+    }
+
+    /* Навігаційне меню знизу */
+    .leftNavBar {
+        position: fixed;
+        bottom: 0;
+        top: auto;
+        left: 0;
+        transform: none;
+        width: 100vw;
+        height: 80px;
+        margin: 0;
+        border-radius: 30px 30px 0 0;
+        border-bottom: none; border-left: none; border-right: none;
+        padding: 0 10px;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-around;
+        align-items: center;
+        z-index: 9999;
+    }
+
+    .leftNavBar .Mavis, .leftNavBar .Logo {
+        display: none ;
+    }
+
+    .leftNavBar nav {
+        flex-direction: row;
+        justify-content: space-around;
+        width: 100%;
+    }
+
+    .leftNavBar nav a {
+        display: flex;
+        justify-content: center;
+    }
+
+    .leftNavButton {
+        width: auto;
+        min-width: 80px;
+        height: 50px;
+        margin: 10px 20px;
+        border-radius: 20px;
+        justify-content: flex-start;
+         width: 100%;             /* Займає всю ширину контейнера на мобільних */
+        max-width: 220px;        /* Але не стає більшою за 220px на десктопі */
+        
+        /* Внутрішні відступи роблять висоту динамічною залежно від тексту */
+        padding: 12px 24px;      
+        
+        /* Округлення підлаштовується під висоту кнопки */
+        border-radius: 9999px;   /* Ефект повної овальності (капсули) */
+        
+        /* Адаптивні зовнішні відступи */
+    margin: 10px auto;       /* Центрує кнопку на мобільних */
+    }
+
+    .leftNavButton img {
+        margin: auto;
+        max-width: 20px;
+        max-height: 20px;
+        justify-self: center;
+    }
+
+    .leftNavButton p {
+        font-size: 0 ;
+    }
+
+    /* ПОВНИЙ СКИД ДЛЯ МОБІЛЬНОЇ РОБОЧОЇ ОБЛАСТІ */
+    .objectArea {
+        width: 100% ;
+        margin: 15px 15px 80px 15px;
+        grid-template-columns: 1fr;
+        padding: 0;
+        padding-bottom: 100px;
+    }
+
+    /* ВИПРАВЛЕНО: Колона повністю втрачає десктопні обмеження */
+    .gridColumn {
+        display: flex;
+        flex-direction: column; /* На мобілках все строго в один вертикальний стовпчик */
+        width: 100vw ;
+        max-width: 100% ;
+        gap: 15px;
+    }
+
+    /* Усі об'єкти (включаючи малі) стають адаптивними на 100% ширини смартфона */
+    .Object.Medium,
+    .Object.Small,
+    .gridColumn .Small {
+        width: calc(100% - 30px) ;
+        height: auto ;
+    }
+
+    /* ВИПРАВЛЕННЯ ВЕЛИКОЇ КАРТКИ НА МОБІЛЬНОМУ */
+    .Object.Large {
+        width: calc(100% - 30px) ;
+        aspect-ratio: 1;
+        height: auto ; /* УСУВАЄ БАГ: скасовує 550px, картка адаптується під контент */
+        border-radius: 30px;
+        margin: 0;
+    }
+
+    /* Виправлення сітки всередині великої картки */
+    .Large .objectOptions {
+        display: grid ;
+        grid-template-columns: repeat(2, 1fr) ; /* Рівно дві колонки на екрані телефону */
+        gap: 12px ; /* Компактні мобільні відступи між плитками */
+        width: calc(100% - 40px) ;
+        height: auto ; /* Скасовує десктопний розрахунок висоти calc */
+        margin: 15px ;
+        box-sizing: border-box;
+    }
+
+    /* ФІКС МОБІЛЬНОГО ВИГЛЯДУ КВАДРАТНИХ КНОПОК */
+    .Button.Square {
+        aspect-ratio: 1 / 1 ;
+        height: 25%;
+        border-radius: 20px ;
+        padding: 12px ; /* Менші внутрішні поля, щоб помістилося більше тексту */
+        box-sizing: border-box;
+        margin: 0;
+    }
+
+    /* Налаштування тексту всередині мобільного квадрата */
+    .Button.Square a {
+        display: flex ;
+        flex-direction: column ; /* Елементи один під одним */
+        justify-content: space-between ; /* Текст падає вниз, час стрибає вгору */
+        align-items: flex-start ;
+        width: 100%;
+        height: 100%;
+        white-space: normal ; /* Дозволяє перенесення слів підпису */
+    }
+
+    /* Час/Показник на мобільному */
+    .Button.Square .Time {
+        font-size: 1.25rem ; /* Зменшений акуратний розмір для екрана телефону */
+        font-weight: bold;
+        margin: 0 ;
+        padding: 0 ;
+        align-self: flex-start ; /* Скасовує десктопне вирівнювання праворуч */
+    }
+
+    .Button.Square h1 {
+        font-size: 1rem;
+    }
+
+    /* Опис/Сповіщення на мобільному */
+    .Button.Square p {
+        font-size: 0.75rem; /* Компактний шрифт, що не ламає рамки плитки */
+        line-height: 1.2;
+        white-space: normal;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-line-clamp: 2; /* Строго обрізає довгий текст після 2-го рядка */
+        -webkit-box-orient: vertical;
+        margin: 0;
+        padding: 0;
+    }
+
+    .Square img {
+        max-height: 50px;
+        height: 100%;
+        aspect-ratio: 1;
+        margin: auto;
+    }
+
+/*     .Button, .buttonSmall, .Small .buttonSmall {
+        width:100%;
+    } */
+
+    .objectHeader, .Small .objectHeader {
+        width: calc(100% - 40px);
+    }
+
+    .Object .objectOptions, .Small .objectOptions {
+        margin: 0 20px 20px 20px;
+        width: calc(100% - 40px);
+        grid-template-columns: 1fr; /* Внутрішні кнопки падають в 1 колонку */
+    }
+
+    .Object.Large .objectOptions {
+        margin: 15px;
+    }
+
+    .Button p, .buttonSmall p, .Button .Time, .buttonSmall .Time {
+        font-size: 1rem ; 
+    }
+
+    .buttonSmall {
+        min-width: 120px;
+
+    }
+
+    .Button {
+        max-width: calc(100vw - 70px);
+    }
+
+    /* Зберігаємо сітку 2х2 для лічильників Large на мобільному */
+    .Large .objectOptions {
+        grid-template-columns: repeat(2, 1fr) ;
+        width: calc(100% - 30px) ;
+        height: auto ;
+        display: grid;
+    }
+
+    .Large .Button.Square {
+        width: 100% ;
+        height: auto ;
+        aspect-ratio: 1 / 1;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .Large .Button.Square .objectOptions {
+        display: flex;
+        flex-flow: column;
+        margin: 10px;
+    }
+
+    .Large .Button.Square .objectOptions p {
+        font-size: 1.5rem ;
+    }
+
+    .Square {
+        width: 100%;
+        height: 100%;
+    }
+
+    .leftNavButton .Secondary {
+        margin: 0;
+    }
+}
+
+/* Кольори */
+.blue {
+    background-color: rgba(125, 166, 217, 0.8);
+}
+
+.orange {
+    background-color: rgba(246, 150, 121, 0.8);
+}
+
+.purple {
+    background-color: rgba(135, 129, 189, 0.8);
+}
+
+.grey {
+    background-color: rgba(112, 112, 112, 0.8);
+}
+
+.green {
+    background-color: rgba(125, 197, 118, 0.8);
+}
+
+.pink {
+    background-color: rgba(244, 154, 193, 0.8);
+}
+
+.red {
+    background-color: rgba(216, 107, 118, 0.8);
+}
+
+.yellow {
+    background-color: rgba(202, 174, 87, 0.8);
+}
+
