@@ -9,11 +9,11 @@
     "author": "Rostyslav 115",
     "license": "MIT",
     "dependencies": {
-        "express": "5.2.1",
-        "ejs": "5.0.2",
         "bootstrap": "5.3.8",
-        "jquery": "4.0.0",
+        "ejs": "5.0.2",
+        "express": "5.2.1",
         "express-session": "1.19.0",
+        "jquery": "^4.0.0",
         "sqlite": "5.1.1"
     },
     "css.lint.vendorPrefix": "ignore"

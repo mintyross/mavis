@@ -1,17 +1,20 @@
+<script src="/js/jquery-4.0.0.min.js"></script>
 <div class="leftSide">
     <div class="leftNavBar">
         <nav>
             <div class="Mavis"><h1>MAVIS</h1></div>
-            <div class="Logo">
-                <div class="logoImage">
-                    <img src="images/smart-home.png" alt="smart-home">
+            <a id="housePicker">
+                <div class="Logo">
+                    <div class="logoImage">
+                        <img src="images/smart-home.png" alt="smart-home">
+                    </div>
+                    <div class="logoTextContainer">
+                        <h2>My crib</h2>
+                        <div class="textDevider"></div>
+                        <h3>Peremohy st., 125-b</h3>
+                    </div>
                 </div>
-                <div class="logoTextContainer">
-                    <h2>My crib</h2>
-                    <div class="textDevider"></div>
-                    <h3>Peremohy st., 125-b</h3>
-                </div>
-            </div>
+            </a>
 
             <a href="/">
                 <div class="leftNavButton <%= activePage == 'index' ? 'Primary' : '' %>">
@@ -20,14 +23,14 @@
                 </div>
             </a>
 
-            <a href="">
+            <a href="/devicemap">
                 <div class="leftNavButton <%= activePage == 'devicemap' ? 'Primary' : '' %>">
                     <img src="images/scheme.png" alt="Device map">
                     <p>Device map</p>
                 </div>
             </a>
 
-            <a href="">
+            <a href="/statistics">
                 <div class="leftNavButton <%= activePage == 'statistics' ? 'Primary' : '' %>">
                     <img src="images/chart.png" alt="Statistics">
                     <p>Statistics</p>
@@ -43,3 +46,34 @@
         </nav>
     </div>
 </div>
+<div class="windowArea" style="display: none;">
+    <div class="housePickerWindow Object Large">
+        <div class="objectHeader"><p>Pick your house:</p></div>
+        <div class="optionArea">
+            <div class="Button"><p>Pick your house:</p></div>
+            <div class="Button"><p>Pick your house:</p></div>
+            <div class="Button"><p>Pick your house:</p></div>
+            <div class="Button"><p>Pick your house:</p></div>
+            <div class="buttonContainer">
+                <div class="buttonSmall Primary" id="housePickerAdd"><p>Add a house</p></div>
+                <div class="buttonSmall Primary" id="housePickerOKButton"><p>Finish picking</p></div>
+            </div>
+        </div>
+
+    </div>  
+</div>
+
+<script src="/js/navbar.js"></script>
+<script>
+    $(document).ready(function() {
+        $("#housePicker").click(function(e) {
+            e.preventDefault();
+            $(".windowArea").css("display", "flex");
+        });
+
+        $("#housePickerOKButton").click(function(e) {
+            e.preventDefault();
+            $(".windowArea").css("display", "none");
+        });
+    });
+</script>

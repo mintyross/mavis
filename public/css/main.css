@@ -77,11 +77,11 @@ h1, h2, h3, h4, h5, h6, p, a {
 }
 
 /* Ховер ефекти */
-.leftNavButton, .Button, .buttonSmall {
+.leftNavButton, .Button, .buttonSmall, .Logo:hover {
     transition: transform 0.4s ease;
 }
 
-.leftNavButton:hover, .Button:hover, .buttonSmall:hover {
+.leftNavButton:hover, .Button:hover, .buttonSmall:hover, .Logo:hover {
     transform: scale(1.05);
     box-shadow: 
         0 8px 32px rgba(31, 38, 135, 0.15),
@@ -89,7 +89,7 @@ h1, h2, h3, h4, h5, h6, p, a {
         inset 0 -2px 5px rgba(0, 0, 0, 0.1);
 }
 
-.leftNavButton:active, .Button:active, .buttonSmall:active {
+.leftNavButton:active, .Button:active, .buttonSmall:active, .Logo:active {
     transform: scale(0.9);
 }
 
@@ -632,6 +632,51 @@ h1, h2, h3, h4, h5, h6, p, a {
         margin: 0;
     }
 }
+
+/* Вікно */
+.windowArea {
+    display: none;
+    justify-content: center;
+    position: fixed;
+    z-index: 99999;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.2);
+}
+
+.isVisible {
+    display: flex;
+}
+
+.housePickerWindow {
+    display: flex;
+    position: relative;
+    margin: 10% auto;
+    height: fit-content;
+
+}
+
+.housePickerWindow .optionArea {
+    margin: 0 20px 0 20px;
+}
+
+.housePickerWindow .optionArea .Button {
+    margin: 15px 0 15px 0;
+}
+
+ .housePickerWindow .optionArea .buttonSmall {
+    margin: 30px auto 20px auto;
+}
+
+ .housePickerWindow .buttonContainer {
+    display: flex;
+    justify-content: space-between;
+    flex-flow: row;
+}
+
+/* .housePickerWindow .Button, .housePickerWindow .smallButton {
+    margin: 15px;
+} */
 
 /* Кольори */
 .blue {

@@ -1,6 +1,7 @@
 const express = require("express");
 //const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
+const $ = require('jquery');
 
 const app = express();
 //const db = new sqlite3.Database(path.join(__dirname, 'database.db'));
@@ -31,7 +32,10 @@ app.get('/', function(req, res){
 });
 
 app.get('/devicemap', function(req, res){
-    res.render('devicemap', { activePage: "devicemap" });
+    res.render('devicemap', { 
+        activePage: "devicemap"
+     });
+    
 });
 app.get('/statistics', function(req, res){
     res.render('statistics', { activePage: "statistics" });

@@ -1,18 +1,13 @@
-app.use((req, res, next) => {
-    res.locals.activePage = "";
-    next();
-});
+$(document).ready(function() {
+    $("#housePicker").click(function(e) {
+        e.preventDefault();
+        // Плавна поява за 400 мілісекунд
+        $(".windowArea").fadeIn(200); 
+    });
 
-app.get('/', function(req, res){
-    res.render('index', { activePage: "index" });
-});
-
-app.get('/devicemap', function(req, res){
-    res.render('devicemap', { activePage: "devicemap" });
-});
-app.get('/statistics', function(req, res){
-    res.render('statistics', { activePage: "statistics" });
-});
-app.get('/settings', function(req, res){
-    res.render('settings', { activePage: "settings" });
+    $("#housePickerOKButton").click(function(e) {
+        e.preventDefault();
+        // Плавне зникнення
+        $(".windowArea").fadeOut(200);
+    });
 });

@@ -1,9 +1,33 @@
 .Plate {
+    min-width: 620px;
     max-width: 1280px;
     min-height: 320px;
     width: 100%;
-
-    margin: 20px;
     
 
 }
+
+.Header {
+    display: flex;
+    justify-content: space-between;
+
+    width: 100%;
+    height: 60px;
+}
+
+.objectArea {
+    display: flex;
+    flex-flow: column;
+    max-width: 1280px;
+}
+
+.roomPicker {
+    display: flex;
+    justify-content: space-between;
+    flex-flow: row;
+}
+
+.addRoom {
+    flex-flow: row;
+}
+
