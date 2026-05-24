@@ -1,4 +1,23 @@
 <script src="/js/jquery-4.0.0.min.js"></script>
+<div class="Header">
+    <div class="Object Button Account">
+        <!-- Клікабельна шапка акаунта -->
+        <div class="accountHeader">
+            <img src="<%- user.avatar %>" alt="Avatar">
+            <p><%= user.userName %> </p>
+        </div>
+        
+        <!-- Дропдаун, який початково прихований -->
+        <div style="display: none;" id="accountDropdown">
+            <a href="/accountData"><div class="Button"><p>change profile data</p></div></a>
+            <div class="Button red" id="logoutButton"><p>Log out</p></div>
+            <!-- Кнопка закриття (лінія/хрестик) -->
+            <a id="accountDropdownClose" style="height: max-content;"><div class="textDevider"></div></a>
+        </div>
+    </div>
+</div>
+
+
 <div class="leftSide">
     <div class="leftNavBar">
         <nav>
@@ -48,12 +67,9 @@
 </div>
 <div class="windowArea" style="display: none;">
     <div class="housePickerWindow Object Large">
-        <div class="objectHeader"><p>Pick your house:</p></div>
+        <div class="objectHeader"><p>Manage houses</p></div>
         <div class="optionArea">
-            <div class="Button"><p>Pick your house:</p></div>
-            <div class="Button"><p>Pick your house:</p></div>
-            <div class="Button"><p>Pick your house:</p></div>
-            <div class="Button"><p>Pick your house:</p></div>
+            
             <div class="buttonContainer">
                 <div class="buttonSmall Primary" id="housePickerAdd"><p>Add a house</p></div>
                 <div class="buttonSmall Primary" id="housePickerOKButton"><p>Finish picking</p></div>
@@ -75,5 +91,53 @@
             e.preventDefault();
             $(".windowArea").css("display", "none");
         });
+  
+        // 1. ВІДКРИТТЯ: Клікам ТІЛЬКИ на шапку акаунта
+        $(".accountHeader").click(function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            $("#accountDropdown").fadeIn(200); 
+        });
+
+        // 2. ДОЗВІЛ НА КЛІК: Якщо клікнули на саме посилання, дозволяємо йому працювати
+        $("#accountDropdown a").click(function(e) {
+            e.stopPropagation(); // Не даємо події піднятися до батьківських елементів
+            
+            // Перестраховка: якщо браузер все одно блокує перехід, робимо його примусово через JS
+            var url = $(this).attr("href");
+            if (url) {
+                window.location.href = url;
+            }
+            return true; 
+        });
+
+        // 3. ЗАКРИТТЯ: Клік на кнопку закриття
+        $("#accountDropdownClose").click(function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            $("#accountDropdown").fadeOut(200); 
+        });
+
+        // 4. ЗАКРИТТЯ ПО КЛІКУ ПОВЗ МЕНЮ: Клік у будь-якій іншій точці екрана
+        $(document).click(function(e) {
+            if (!$(e.target).closest('.Account').length) {
+                $("#accountDropdown").fadeOut(200);
+            }
+        });
+
+
+
+
+
+        $("#logoutButton").click(function(e) {
+            e.preventDefault();
+            
+            // Відправляємо POST запит на сервер без перезавантаження сторінки
+            $.post('/logout', function() {
+                // Коли сервер успішно видалив сесію, перенаправляємо браузер на логін
+                window.location.href = '/login';
+            });
+        });
+
     });
 </script>

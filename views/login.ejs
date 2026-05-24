@@ -1,14 +1,9 @@
 <!DOCTYPE html>
-<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
-<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
-<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
-<!--[if gt IE 8]>      <html class="no-js"> <!--<![endif]-->
 <html>
     <head>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <title>Mavis</title>
-        <meta name="description" content="">
+        <title>Mavis - Login</title>
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" href="css/main.css">
         <link rel="stylesheet" href="css/login.css">
@@ -17,13 +12,12 @@
         <div class="container">
             <div class="Object Login">
                 <div class="objectHeader">
-                <h1>Log in</h1>
+                    <h1>Log in</h1>
                 </div>
-                <form action="/login" method="POST" novalidate>
-
+                <form id="loginForm" novalidate>
                     <div class="input-group">
-                        <label for="email">Email address</label>
-                        <input type="email" id="email" name="email" placeholder="name@example.com" required autocomplete="email">
+                        <label for="userName">Username or Email</label>
+                        <input type="text" id="userName" name="userName" placeholder="Enter username" required>
                     </div>
 
                     <div class="input-group">
@@ -37,10 +31,9 @@
                 <p class="register-redirect">
                     Don't have an Account? <a href="/register">Register</a>
                 </p>
-                
             </div>
         </div>
 
-        <script src="/js/validator.js"></script>
+        <script src="/js/login.js"></script>
     </body>
 </html>

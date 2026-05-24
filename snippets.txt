@@ -1,0 +1,4 @@
+
+            <% houses.forEach(function(house) { %>
+                <div class="Button"><p><%- house['houseName'] %> at <%- house['houseLocation'] %> </p></div>
+            <% }) %>

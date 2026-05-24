@@ -10,4 +10,11 @@ $(document).ready(function() {
         // Плавне зникнення
         $(".windowArea").fadeOut(200);
     });
+
+    $(".Account").click(function(e) {
+        e.preventDefault();
+        // Плавна поява за 400 мілісекунд
+        $("#accountDropdown").fadeIn(450); 
+    });
+
 });
