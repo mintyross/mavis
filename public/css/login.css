@@ -47,7 +47,7 @@
     font-size: 1.5rem;
 }
 
-.Login input#email, .Login input#password, .Login input#passwordConfirm, .Login input#userName {
+.Login input#email, .Login input#password, .Login input#passwordConfirm, .Login input {
     width: 100%;             /* Розтягується на весь доступний простір... */
     max-width: 240px;        /* ...але не ширше за 240px */
 

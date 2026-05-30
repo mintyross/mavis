@@ -12,6 +12,8 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" href="css/main.css">
         <link rel="stylesheet" href="css/settings.css">
+        <link rel="stylesheet" href="css/mobile.css">
+        <link rel="stylesheet" href="css/devicemap.css">
     </head>
     <body>
         <div class="container">
@@ -20,15 +22,177 @@
 
 
             <div class="objectArea">
-                <div class="Header objectOptions">
-                    <div class="Object Button roomPicker"><p>Device map for:</p><p>Living room</p></div>
-                    <div class="Object buttonSmall addRoom" style="align-content: center;"><p>Add room</p></div>
-                </div>
+                
 
                 <div class="Object Plate">
-                    
+                    <div class="objectOptions">
+                        <div class="buttonSmall roomPicker" style="background-color: <%- locals.activeRoom ? activeRoom.roomColor + '80' : '#ffa600' %>;"><p><%- locals.activeRoom ? activeRoom.roomName : 'Add a room' %></p></div>
+                        <div class="buttonSmall addRoom" style="align-content: center;"><p>Devices</p></div>
+                    </div>
+                    <div class="mapCanvas">
+                        <canvas id="canvas"></canvas>
+                    </div>
                 </div>
             </div> 
+
+            <div class="roomWindowArea" style="display: none;">
+                <div class="housePickerWindow Object Large" id="roomPickerWindow">
+                    <div class="objectHeader"><p>Manage rooms</p></div>
+                    <div class="optionArea">
+                        <% rooms.forEach(function(room) { 
+                            // Перевіряємо, чи є будинок активним у сесії
+                            const currentActiveRoomId = locals.activeRoom ? activeRoom.roomId : null;
+                            const isIdMatch = (currentActiveRoomId && currentActiveRoomId == room.roomId);
+                            const isPrimary = isIdMatch ? 'Primary' : '';
+                        %>
+                            <!-- Додаємо клас houseItemButton та data-id -->
+                            <div class="Button houseItemButton <%- isPrimary %> " id="houseItemButton" style="background-color: <%- room.roomColor ? room.roomColor + '80' : '#ffa60080' %>;"
+                                data-house-id="<%- room.houseId %>"
+                                data-room-id="<%- room.roomId %>" 
+                                data-room-name="<%- room.roomName %>" 
+                                data-room-color="<%- room.roomColor || '#ffa600' %>">
+                                <p><%- room.roomName %></p>
+                                
+                                <!-- Кнопка з трьома крапками -->
+                                <div class="buttonSmall optionsButton" id="optionsButton">
+                                    <img src="/images/dots.png" alt="Options">
+                                    
+                                    <!-- Випадаюче меню дій (приховане за замовчуванням) -->
+                                    <div class="dropdownActions">
+                                        <div class="dropdownItem roomEditButton"><p>Edit</p></div>
+                                        <div class="dropdownItem removeRoomButton"><p>Remove</p></div>
+                                    </div>
+                                </div>
+                            </div>
+                        <% }) %>
+
+                        <div class="buttonContainer">
+                            <div class="buttonSmall" id="roomPickerAdd"><p>Add rooms</p></div>
+                            <div class="buttonSmall Primary" id="roomPickerOKButton" style="backdrop-filter: unset;"><p>Close</p></div>
+                        </div>
+                    </div>
+
+
+                </div>  
+
+                <link rel="stylesheet" href="css/login.css">
+                <div class="Login housePickerWindow addHouse Object Large" id="roomAddWindow" style="margin: 10% auto; display: none">
+                    <div class="objectHeader"><p>Add a room</p></div>
+
+                    <form id="addRoomForm" action="/addRoomForm" method="post" novalidate>
+                        <div class="input-group">
+                            <label for="roomName">Room Name</label>
+                            <input type="text" id="roomName" name="roomName" placeholder="Living room" required>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="roomColor">Select room color:</label>
+                            <input type="color" id="roomColor" value="#ffa600">
+                        </div>
+                        
+
+                        <div class="objectArea buttonContainer" style="padding: 0; margin: 20px auto 20px auto">
+                            <div class="buttonSmall Secondary" id="roomAddWindowCancelButton"><p>Cancel</p></div>
+                            <button type="submit" class="buttonSmall Primary" id="houseAddWindowAddButton"><p>Add</p></button>
+                        </div>
+                    </form>
+                </div> 
+
+                <div class="Login housePickerWindow addHouse Object Large" id="roomEditWindow" style="margin: 10% auto; display: none">
+                    <div class="objectHeader"><p>Edit the room</p></div>
+
+                    <!-- ВИПРАВЛЕНО: Змінено id на унікальний editRoomForm -->
+                    <form id="editRoomForm" action="/editRoomForm" method="post" novalidate>
+                        <input type="hidden" id="editRoomIdInput" name="roomId" value="">
+                        <input type="hidden" id="editHouseIdInput" name="houseId" value="">
+
+                        <div class="input-group">
+                            <label for="editRoomName">Room Name</label>
+                            <!-- ВИПРАВЛЕНО: Змінено id на унікальний editRoomName та додано name="roomName" -->
+                            <input type="text" id="editRoomName" name="roomName" placeholder="Living room" required>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="editRoomColor">Select room color:</label>
+                            <!-- ВИПРАВЛЕНО: Змінено id на унікальний editRoomColor та додано name="roomColor" -->
+                            <input type="color" id="editRoomColor" name="roomColor" value="#ffa600">
+                        </div>
+
+                        <div class="objectArea buttonContainer" style="padding: 0; margin: 20px auto 20px auto">
+                            <div class="buttonSmall Secondary" id="roomEditWindowCancelButton"><p>Cancel</p></div>
+                            <button type="submit" class="buttonSmall Primary" id="roomEditWindowEditButton"><p>Edit</p></button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- ВІКНО МЕНЕДЖМЕНТУ ПРИСТРОЇВ (Відкривається по кліку на .addRoom) -->
+            <div class="deviceWindowArea">
+                <div class="housePickerWindow Object Large" id="devicePickerWindow" style="display: none;">
+                    <div class="objectHeader"><p>Manage devices for this room</p></div>
+                    <div class="optionArea">
+                        <% if (locals.devices && devices.length > 0) { %>
+                            <% devices.forEach(function(device) { %>
+                                <!-- Картка пристрою із відображенням типу його з'єднання -->
+                                <div class="Button houseItemButton" data-device-id="<%- device.deviceId %>">
+                                    <p><%- device.deviceName %> <span style="font-size: 0.8em; opacity: 0.6;"><%- device.usageScheme %> </span></p>
+                                    
+                                    <div class="buttonSmall optionsButton">
+                                        <img src="/images/dots.png" alt="Options">
+                                        <div class="dropdownActions">
+                                            <div class="dropdownItem removeDeviceButton"><p>Remove</p></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            <% }) %>
+                        <% } else { %>
+                            <p style="text-align:center; padding: 20px; opacity:0.6;">No devices linked to this room yet.</p>
+                        <% } %>
+
+                        <div class="buttonContainer">
+                            <div class="buttonSmall" id="devicePickerAdd"><p>New Device</p></div>
+                            <div class="buttonSmall Primary" id="devicePickerOKButton" style="backdrop-filter: unset;"><p>Close</p></div>
+                        </div>
+                    </div>
+                </div>  
+
+                <!-- ВІКНО СТВОРЕННЯ НОВОГО ПРИСТРОЮ -->
+                <div class="Login housePickerWindow addHouse Object Large" id="deviceAddWindow" style="margin: 10% auto; display: none">
+                    <div class="objectHeader"><p>Register device</p></div>
+
+                    <form id="addDeviceForm" action="/addDeviceForm" method="post" novalidate>
+                        <div class="input-group">
+                            <label for="deviceName">Device Name</label>
+                            <input type="text" id="deviceName" name="deviceName" placeholder="Smart Lamp, Motion Sensor..." required>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="usageScheme">Device Usage Scheme</label>
+                            <select id="usageScheme" name="usageScheme" style="width:100%; padding:10px; background:#2c2c2c; color:white; border:none; border-radius:5px;">
+                                <option value="on/off">On/Off Switchable (Lights, Relays, Smart Plugs)</option>
+                                <option value="sensor">Sensor Trigger (Motion, Temperature, Contact)</option>
+                                <option value="dimmer">Analog Dimmer (Brightness, Fan Speed Control)</option>
+                            </select>
+                        </div>
+
+                        <div class="objectArea buttonContainer" style="padding: 0; margin: 20px auto 20px auto">
+                            <div class="buttonSmall Secondary" id="deviceAddWindowCancelButton"><p>Cancel</p></div>
+                            <button type="submit" class="buttonSmall green" id="deviceAddSubmitButton"><p>Register</p></button>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+            
+
         </div>
+        <script src="/js/jquery-4.0.0.min.js"></script>
+        <script>
+            const serverDevices = <%- JSON.stringify(devices || []) %>;
+            const serverConnections = <%- JSON.stringify(connections || []) %>;
+            console.log("Data successfully loaded into browser:", serverDevices);
+        </script>
+                <script src="/js/canvas.js"></script>
+        <script src="/js/devicemap.js"></script>
     </body>
 </html>

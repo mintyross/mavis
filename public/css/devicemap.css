@@ -1,0 +1,88 @@
+.mapCanvas {
+    display: flex;
+    flex-grow: 1; /* КРИТИЧНО: Примушує блок зайняти весь доступний простір по вертикалі */
+    width: calc(100% - 40px); /* Враховуємо margin зліва та справа */
+    margin: 0 20px 20px 20px;
+    box-sizing: border-box;
+}
+
+#canvas {
+    background-color: whitesmoke; /* Робимо фон прозорим, щоб бачити antiquewhite через Plate */
+    width: 100%;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 40px;
+    box-sizing: border-box;
+}
+
+.Plate {
+    display: flex;
+    flex-flow: column;
+    min-width: 360px; /* Зменшуємо мін. ширину для підтримки мобільних пристроїв */
+    min-height: 720px;
+    width: 100%;
+    height: 100%;
+}
+
+
+.Object .objectOptions {
+    margin: 20px;
+    flex-wrap: nowrap;
+}
+
+.objectArea {
+    display: flex;
+    flex-flow: column;
+    max-width: 1280px;
+}
+
+.roomPicker {
+    display: flex;
+    justify-content: space-between;
+    flex-flow: row;
+}
+
+.addRoom {
+    flex-flow: row;
+}
+
+.roomWindowArea {
+    display: none;
+    justify-content: center;
+    position: fixed;
+    z-index: 10000;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.2);
+}
+
+.deviceWindowArea {
+    display: none;
+    justify-content: center;
+    position: fixed;
+    z-index: 10000;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.2);
+}
+
+#roomColor, #editRoomColor {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 2px solid rgb(153, 153, 153);
+  cursor: pointer;
+  padding: 0;
+}
+
+/* Focus state for accessibility */
+#roomColor:focus {
+  outline: 3px solid rgba(105, 105, 105, 0.5);
+  outline-offset: 2px;
+}
+
+
+@media (max-width: 620px) {
+    .Plate {
+        margin-top: 100px;
+    }
+}

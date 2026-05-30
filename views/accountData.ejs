@@ -3,10 +3,11 @@
     <head>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <title>Mavis - Register</title>
+        <title>Mavis - Update Profile</title>
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" href="css/main.css">
         <link rel="stylesheet" href="css/login.css">
+        <link rel="stylesheet" href="css/mobile.css">
     </head>
     <body>
         <div class="container">
@@ -44,7 +45,13 @@
                     </div>
                     <div><button type="submit" class="login-btn buttonSmall green"><p>Apply changes</p></button></div>
                     <p class="register-redirect">
-                        You can always <a href="/">Go back</a>
+
+                        <!-- Посилання для видалення з захистом від випадкового кліку -->
+                        <a href="/accountDelete" class="delete-account-link" onclick="return confirm('Ви впевнені, що хочете НАЗАВЖДИ видалити свій акаунт? Цю дію неможливо скасувати!');" style="color: rgba(184, 25, 41, 0.8);">
+                        Delete Account
+                        </a>
+                        
+                        <a href="/">Go back</a>
                     </p>
                     
                 </form>

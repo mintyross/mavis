@@ -23,15 +23,26 @@
         <nav>
             <div class="Mavis"><h1>MAVIS</h1></div>
             <a id="housePicker">
-                <div class="Logo">
+                <div class="Logo" >
                     <div class="logoImage">
                         <img src="images/smart-home.png" alt="smart-home">
                     </div>
+
                     <div class="logoTextContainer">
-                        <h2>My crib</h2>
-                        <div class="textDevider"></div>
-                        <h3>Peremohy st., 125-b</h3>
+                        <% if (activeHouse) { %>
+                            <!-- Виводимо дані вибраного будинку -->
+                            <h3><%- activeHouse.houseName || activeHouse.housename %></h3>
+                            <div class="textDevider"></div>
+                            <p><%- activeHouse.houseLocation || activeHouse.houselocation %></p>
+                        <% } else { %>
+                            <!-- Заглушка, якщо будинків взагалі немає в базі -->
+                            <h2>No House Selected</h2>
+                            <div class="textDevider"></div>
+                            <h3>Click to add or select</h3>
+                        <% } %>
                     </div>
+                    
+                    
                 </div>
             </a>
 
@@ -65,79 +76,88 @@
         </nav>
     </div>
 </div>
+
 <div class="windowArea" style="display: none;">
-    <div class="housePickerWindow Object Large">
+    <div class="housePickerWindow Object Large" id="housePickerWindow">
         <div class="objectHeader"><p>Manage houses</p></div>
         <div class="optionArea">
-            
+            <% houses.forEach(function(house) { 
+                // Перевіряємо, чи є будинок активним у сесії
+                const isIdMatch = (typeof activeHouseId !== 'undefined' && activeHouseId == (house.houseId));
+                const isPrimary = isIdMatch ? 'Primary' : '';
+            %>
+                <!-- Додаємо клас houseItemButton та data-id -->
+                <div class="Button houseItemButton <%- isPrimary %>" data-id="<%- house.houseId %>">
+                    <p><%- house.houseName %> at <%- house.houseLocation %></p>
+                    
+                    <!-- Кнопка з трьома крапками -->
+                    <div class="buttonSmall optionsButton" id="optionsButton">
+                        <img src="/images/dots.png" alt="Options">
+                        
+                        <!-- Випадаюче меню дій (приховане за замовчуванням) -->
+                        <div class="dropdownActions">
+                            <div class="dropdownItem houseEditButton" id=""><p>Edit</p></div>
+                            <div class="dropdownItem removeHouseButton"><p>Remove</p></div>
+                        </div>
+                    </div>
+                </div>
+            <% }) %>
+
             <div class="buttonContainer">
-                <div class="buttonSmall Primary" id="housePickerAdd"><p>Add a house</p></div>
-                <div class="buttonSmall Primary" id="housePickerOKButton"><p>Finish picking</p></div>
+                <div class="buttonSmall" id="housePickerAdd"><p>Add houses</p></div>
+                <div class="buttonSmall Primary" id="housePickerOKButton" style="backdrop-filter: unset;"><p>Finish picking</p></div>
             </div>
         </div>
 
+
     </div>  
+    <link rel="stylesheet" href="css/login.css">
+    <div class="Login housePickerWindow addHouse Object Large" id="houseAddWindow" style="margin: 10% auto; display: none">
+        <div class="objectHeader"><p>Add a house</p></div>
+
+        <form id="addHouseForm" action="/addHouseForm" method="post" novalidate>
+            <div class="input-group">
+                <label for="houseName">House Name</label>
+                <input type="text" id="houseName" name="houseName" placeholder="My crib" required>
+            </div>
+
+            <div class="input-group">
+                <label for="houseLocation">House Location</label>
+                <input type="text" id="houseLocation" name="houseLocation" placeholder="21st street" required>
+            </div>
+
+            <div class="objectArea buttonContainer" style="padding: 0; margin: 20px auto 20px auto">
+                <div class="buttonSmall Secondary" id="houseAddWindowCancelButton"><p>Cancel</p></div>
+                <button type="submit" class="buttonSmall green" id="houseAddWindowAddButton"><p>Add</p></button>
+            </div>
+        </form>
+
+
+    </div> 
+
+    <div class="Login housePickerWindow addHouse Object Large" id="houseEditWindow" style="margin: 10% auto; display: none">
+        <div class="objectHeader"><p>Edit the house</p></div>
+
+        <form id="addHouseForm" action="/editHouseForm" method="post" novalidate>
+            <input type="hidden" id="editHouseIdInput" name="houseId" value="">
+            <div class="input-group">
+                <label for="houseName">House Name</label>
+                <input type="text" id="editHouseNameInput" name="houseName" placeholder="My crib" required>
+            </div>
+
+            <div class="input-group">
+                <label for="houseLocation">House Location</label>
+                <input type="text" id="editHouseLocationInput" name="houseLocation" placeholder="21st street" required>
+            </div>
+
+            <div class="objectArea buttonContainer" style="padding: 0; margin: 20px auto 20px auto">
+                <div class="buttonSmall Secondary" id="houseEditWindowCancelButton"><p>Cancel</p></div>
+                <button type="submit" class="buttonSmall green" id="houseEditWindowEditButton"><p>Edit</p></button>
+            </div>
+        </form>
+
+
+    </div> 
 </div>
 
 <script src="/js/navbar.js"></script>
-<script>
-    $(document).ready(function() {
-        $("#housePicker").click(function(e) {
-            e.preventDefault();
-            $(".windowArea").css("display", "flex");
-        });
-
-        $("#housePickerOKButton").click(function(e) {
-            e.preventDefault();
-            $(".windowArea").css("display", "none");
-        });
-  
-        // 1. ВІДКРИТТЯ: Клікам ТІЛЬКИ на шапку акаунта
-        $(".accountHeader").click(function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            $("#accountDropdown").fadeIn(200); 
-        });
-
-        // 2. ДОЗВІЛ НА КЛІК: Якщо клікнули на саме посилання, дозволяємо йому працювати
-        $("#accountDropdown a").click(function(e) {
-            e.stopPropagation(); // Не даємо події піднятися до батьківських елементів
-            
-            // Перестраховка: якщо браузер все одно блокує перехід, робимо його примусово через JS
-            var url = $(this).attr("href");
-            if (url) {
-                window.location.href = url;
-            }
-            return true; 
-        });
-
-        // 3. ЗАКРИТТЯ: Клік на кнопку закриття
-        $("#accountDropdownClose").click(function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            $("#accountDropdown").fadeOut(200); 
-        });
-
-        // 4. ЗАКРИТТЯ ПО КЛІКУ ПОВЗ МЕНЮ: Клік у будь-якій іншій точці екрана
-        $(document).click(function(e) {
-            if (!$(e.target).closest('.Account').length) {
-                $("#accountDropdown").fadeOut(200);
-            }
-        });
-
-
-
-
-
-        $("#logoutButton").click(function(e) {
-            e.preventDefault();
-            
-            // Відправляємо POST запит на сервер без перезавантаження сторінки
-            $.post('/logout', function() {
-                // Коли сервер успішно видалив сесію, перенаправляємо браузер на логін
-                window.location.href = '/login';
-            });
-        });
-
-    });
-</script>

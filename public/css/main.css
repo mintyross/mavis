@@ -50,7 +50,7 @@ h1, h2, h3, h4, h5, h6, p, a {
     background: rgba(0, 0, 0, 0);
 }
 
-.leftNavBar, .Object {
+.leftNavBar, .Object, .dropdownActions {
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 40px;
     background: rgba(255, 255, 255, 0.25);
@@ -277,13 +277,17 @@ h1, h2, h3, h4, h5, h6, p, a {
     border-radius: 30px;
 }
 
-.Button p, .buttonSmall p, .Square {
+.Button p, .buttonSmall p, .Square, .logoTextContainer p, .logoTextContainer h3 {
     margin: 0 20px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
     flex-grow: 1;
     min-width: 0;
+}
+
+.logoTextContainer h3, .logoTextContainer p {
+    margin: 0;
 }
 
 .Button .Time, .buttonSmall .Time {
@@ -382,260 +386,65 @@ h1, h2, h3, h4, h5, h6, p, a {
     text-align: center;
 }
 
+.optionsButton {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    margin: auto 10px auto 10px;
+}
 
-/* ==========================================
-   5. АДАПТИВНІСТЬ: ПЛАНШЕТИ ТА МОБІЛЬНІ
-   ========================================== */
-@media (max-width: 620px) {
-    body {
-        padding-bottom: 90px;
-    }
+.optionsButton img {
+    margin: auto;
+    width: 30px;
+    height: 30px;
+    aspect-ratio: 1;
+}
 
-    .container {
-        flex-direction: column;
-    }
+/* Робимо кнопку крапок контейнером для меню */
+.optionsButton {
+    position: relative;
+    cursor: pointer;
+}
 
-    .leftSide {
-        width: 100%;
-        height: 0;
-    }
+/* Стилі для самого випадаючого списку */
+.dropdownActions {
+    display: none; /* За замовчуванням приховано */
+    position: absolute;
+    /* ГОЛОВНІ ЗМІНИ ДЛЯ ЗМІЩЕННЯ ПРАВОРУЧ: */
+    top: 50%;               /* Вирівнюємо по центру кнопки по вертикалі */
+    left: 100%;             /* Виштовхуємо меню повністю праворуч за межі кнопки */
+    margin-left: 15px;      /* Невеликий відступ від самих крапок */
+    transform: translateY(-50%); /* Ідеально центруємо по вертикалі */
+    background-color: rgb(183, 191, 175);
+    border-radius: 40px;
+    box-shadow: 0px 4px 8px rgba(0,0,0,0.1);
+    z-index: 20000; /* Щоб меню було поверх інших елементів */
+    min-width: 100px;
+    overflow: hidden;
+}
 
-    /* Навігаційне меню знизу */
-    .leftNavBar {
-        position: fixed;
-        bottom: 0;
-        top: auto;
-        left: 0;
-        transform: none;
-        width: 100vw;
-        height: 80px;
-        margin: 0;
-        border-radius: 30px 30px 0 0;
-        border-bottom: none; border-left: none; border-right: none;
-        padding: 0 10px;
-        display: flex;
-        flex-direction: row;
-        justify-content: space-around;
-        align-items: center;
-        z-index: 9999;
-    }
+/* Показуємо меню тільки коли кнопка крапок має клас .active */
+.optionsButton.active .dropdownActions {
+    display: block;
+}
 
-    .leftNavBar .Mavis, .leftNavBar .Logo {
-        display: none ;
-    }
+/* Елементи меню (Edit, Remove) */
+.dropdownItem {
+    display: flex;
+    padding: 8px 12px;
+    color: #333;
+    font-size: 14px;
+    text-align: left;
+    transition: background 0.2s;
+    text-align: center;
+}
 
-    .leftNavBar nav {
-        flex-direction: row;
-        justify-content: space-around;
-        width: 100%;
-    }
+.dropdownItem p {
+    font-size: 1rem;
+}
 
-    .leftNavBar nav a {
-        display: flex;
-        justify-content: center;
-    }
-
-    .leftNavButton {
-        width: auto;
-        min-width: 80px;
-        height: 50px;
-        margin: 10px 20px;
-        border-radius: 20px;
-        justify-content: flex-start;
-         width: 100%;             /* Займає всю ширину контейнера на мобільних */
-        max-width: 220px;        /* Але не стає більшою за 220px на десктопі */
-        
-        /* Внутрішні відступи роблять висоту динамічною залежно від тексту */
-        padding: 12px 24px;      
-        
-        /* Округлення підлаштовується під висоту кнопки */
-        border-radius: 9999px;   /* Ефект повної овальності (капсули) */
-        
-        /* Адаптивні зовнішні відступи */
-    margin: 10px auto;       /* Центрує кнопку на мобільних */
-    }
-
-    .leftNavButton img {
-        margin: auto;
-        max-width: 20px;
-        max-height: 20px;
-        justify-self: center;
-    }
-
-    .leftNavButton p {
-        font-size: 0 ;
-    }
-
-    /* ПОВНИЙ СКИД ДЛЯ МОБІЛЬНОЇ РОБОЧОЇ ОБЛАСТІ */
-    .objectArea {
-        width: 100% ;
-        margin: 15px 15px 80px 15px;
-        grid-template-columns: 1fr;
-        padding: 0;
-        padding-bottom: 100px;
-    }
-
-    /* ВИПРАВЛЕНО: Колона повністю втрачає десктопні обмеження */
-    .gridColumn {
-        display: flex;
-        flex-direction: column; /* На мобілках все строго в один вертикальний стовпчик */
-        width: 100vw ;
-        max-width: 100% ;
-        gap: 15px;
-    }
-
-    /* Усі об'єкти (включаючи малі) стають адаптивними на 100% ширини смартфона */
-    .Object.Medium,
-    .Object.Small,
-    .gridColumn .Small {
-        width: calc(100% - 30px) ;
-        height: auto ;
-    }
-
-    /* ВИПРАВЛЕННЯ ВЕЛИКОЇ КАРТКИ НА МОБІЛЬНОМУ */
-    .Object.Large {
-        width: calc(100% - 30px) ;
-        aspect-ratio: 1;
-        height: auto ; /* УСУВАЄ БАГ: скасовує 550px, картка адаптується під контент */
-        border-radius: 30px;
-        margin: 0;
-    }
-
-    /* Виправлення сітки всередині великої картки */
-    .Large .objectOptions {
-        display: grid ;
-        grid-template-columns: repeat(2, 1fr) ; /* Рівно дві колонки на екрані телефону */
-        gap: 12px ; /* Компактні мобільні відступи між плитками */
-        width: calc(100% - 40px) ;
-        height: auto ; /* Скасовує десктопний розрахунок висоти calc */
-        margin: 15px ;
-        box-sizing: border-box;
-    }
-
-    /* ФІКС МОБІЛЬНОГО ВИГЛЯДУ КВАДРАТНИХ КНОПОК */
-    .Button.Square {
-        aspect-ratio: 1 / 1 ;
-        height: 25%;
-        border-radius: 20px ;
-        padding: 12px ; /* Менші внутрішні поля, щоб помістилося більше тексту */
-        box-sizing: border-box;
-        margin: 0;
-    }
-
-    /* Налаштування тексту всередині мобільного квадрата */
-    .Button.Square a {
-        display: flex ;
-        flex-direction: column ; /* Елементи один під одним */
-        justify-content: space-between ; /* Текст падає вниз, час стрибає вгору */
-        align-items: flex-start ;
-        width: 100%;
-        height: 100%;
-        white-space: normal ; /* Дозволяє перенесення слів підпису */
-    }
-
-    /* Час/Показник на мобільному */
-    .Button.Square .Time {
-        font-size: 1.25rem ; /* Зменшений акуратний розмір для екрана телефону */
-        font-weight: bold;
-        margin: 0 ;
-        padding: 0 ;
-        align-self: flex-start ; /* Скасовує десктопне вирівнювання праворуч */
-    }
-
-    .Button.Square h1 {
-        font-size: 1rem;
-    }
-
-    /* Опис/Сповіщення на мобільному */
-    .Button.Square p {
-        font-size: 0.75rem; /* Компактний шрифт, що не ламає рамки плитки */
-        line-height: 1.2;
-        white-space: normal;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        display: -webkit-box;
-        -webkit-line-clamp: 2; /* Строго обрізає довгий текст після 2-го рядка */
-        -webkit-box-orient: vertical;
-        margin: 0;
-        padding: 0;
-    }
-
-    .Square img {
-        max-height: 50px;
-        height: 100%;
-        aspect-ratio: 1;
-        margin: auto;
-    }
-
-/*     .Button, .buttonSmall, .Small .buttonSmall {
-        width:100%;
-    } */
-
-    .objectHeader, .Small .objectHeader {
-        width: calc(100% - 40px);
-    }
-
-    .Object .objectOptions, .Small .objectOptions {
-        margin: 0 20px 20px 20px;
-        width: calc(100% - 40px);
-        grid-template-columns: 1fr; /* Внутрішні кнопки падають в 1 колонку */
-    }
-
-    .Object.Large .objectOptions {
-        margin: 15px;
-    }
-
-    .Button p, .buttonSmall p, .Button .Time, .buttonSmall .Time {
-        font-size: 1rem ; 
-    }
-
-    .buttonSmall {
-        min-width: 120px;
-
-    }
-
-    .Button {
-        max-width: calc(100vw - 70px);
-    }
-
-    /* Зберігаємо сітку 2х2 для лічильників Large на мобільному */
-    .Large .objectOptions {
-        grid-template-columns: repeat(2, 1fr) ;
-        width: calc(100% - 30px) ;
-        height: auto ;
-        display: grid;
-    }
-
-    .Large .Button.Square {
-        width: 100% ;
-        height: auto ;
-        aspect-ratio: 1 / 1;
-        flex-direction: column;
-        justify-content: center;
-    }
-
-    .Large .Button.Square .objectOptions {
-        display: flex;
-        flex-flow: column;
-        margin: 10px;
-    }
-
-    .Large .Button.Square .objectOptions p {
-        font-size: 1.5rem ;
-    }
-
-    .Square {
-        width: 100%;
-        height: 100%;
-    }
-
-    .leftNavButton .Secondary {
-        margin: 0;
-    }
-
-    .accountHeader p{
-        display: none;
-    }
+.removeHouseButton p {
+    color: rgba(216, 107, 118, 0.8);
 }
 
 /* Вікно */
@@ -643,7 +452,7 @@ h1, h2, h3, h4, h5, h6, p, a {
     display: none;
     justify-content: center;
     position: fixed;
-    z-index: 99999;
+    z-index: 10000;
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.2);
@@ -658,6 +467,7 @@ h1, h2, h3, h4, h5, h6, p, a {
     position: relative;
     margin: 10% auto;
     height: fit-content;
+    z-index: 11000;
 
 }
 
@@ -669,7 +479,7 @@ h1, h2, h3, h4, h5, h6, p, a {
     margin: 15px 0 15px 0;
 }
 
- .housePickerWindow .optionArea .buttonSmall {
+ .housePickerWindow .optionArea .buttonSmall:not(.optionsButton) {
     margin: 30px auto 20px auto;
 }
 
@@ -677,6 +487,11 @@ h1, h2, h3, h4, h5, h6, p, a {
     display: flex;
     justify-content: space-between;
     flex-flow: row;
+}
+
+.addHouse {
+    position: relative;
+    z-index: 12000;
 }
 
 /* .housePickerWindow .Button, .housePickerWindow .smallButton {

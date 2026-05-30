@@ -18,7 +18,7 @@ const db = new sqlite3.Database(DBSOURCE, (err) => {
             email VARCHAR(100) NOT NULL UNIQUE,
             hashedPassword VARCHAR(255) NOT NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            siteTheme INTEGER,
+            /* siteTheme INTEGER, */
             avatar TEXT DEFAULT '/images/user.png'
         )`, (err) => {
             if (err) console.error('Users table error:', err.message);
@@ -29,8 +29,8 @@ const db = new sqlite3.Database(DBSOURCE, (err) => {
         db.run(`CREATE TABLE IF NOT EXISTS houses (
             houseId INTEGER PRIMARY KEY AUTOINCREMENT,
             userId INTEGER,
-            houseName TEXT NOT NULL,
-            houseLocation TEXT NOT NULL,
+            houseName TEXT NOT NULL UNIQUE,
+            houseLocation TEXT NOT NULL UNIQUE,
             waterUsage INTEGER,
             electricityUsage INTEGER,
             gasUsage INTEGER,
@@ -47,6 +47,7 @@ const db = new sqlite3.Database(DBSOURCE, (err) => {
             userId INTEGER,
             houseId INTEGER,
             roomName TEXT NOT NULL,
+            roomColor TEXT,
             FOREIGN KEY(userId) REFERENCES users(userId) ON DELETE CASCADE,
             FOREIGN KEY(houseId) REFERENCES houses(houseId) ON DELETE CASCADE
         )`, (err) => {
@@ -61,14 +62,17 @@ const db = new sqlite3.Database(DBSOURCE, (err) => {
             houseId INTEGER,
             roomId INTEGER,
             deviceName TEXT NOT NULL,
-            deviceType TEXT NOT NULL,
+            usageScheme TEXT NOT NULL DEFAULT 'on/off', 
+            canvasX INTEGER DEFAULT 100,
+            canvasY INTEGER DEFAULT 100,
             FOREIGN KEY(userId) REFERENCES users(userId) ON DELETE CASCADE,
             FOREIGN KEY(houseId) REFERENCES houses(houseId) ON DELETE CASCADE,
             FOREIGN KEY(roomId) REFERENCES rooms(roomId) ON DELETE CASCADE
         )`, (err) => {
             if (err) console.error('Devices table error:', err.message);
-            else console.log('Table devices is created');
+            else console.log('Table devices is created with usageScheme execution layout');
         });
+
 
         // CONNECTIONS TABLE
         db.run(`CREATE TABLE IF NOT EXISTS connections (
@@ -83,6 +87,17 @@ const db = new sqlite3.Database(DBSOURCE, (err) => {
             FOREIGN KEY(roomId) REFERENCES rooms(roomId) ON DELETE CASCADE,
             FOREIGN KEY(deviceFromId) REFERENCES devices(deviceId) ON DELETE CASCADE,
             FOREIGN KEY(deviceToId) REFERENCES devices(deviceId) ON DELETE CASCADE
+        )`, (err) => {
+            if (err) console.error('Connections table error:', err.message);
+            else console.log('Table connections is created');
+        });
+
+        db.run(`CREATE TABLE IF NOT EXISTS logs (
+            logId INTEGER PRIMARY KEY AUTOINCREMENT,
+            userId INTEGER,
+            logMessage TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY(userId) REFERENCES users(userId) ON DELETE CASCADE
         )`, (err) => {
             if (err) console.error('Connections table error:', err.message);
             else console.log('Table connections is created');
