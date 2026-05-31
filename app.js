@@ -582,11 +582,16 @@ app.post('/houseSelect', (req, res) => {
 
     // Зберігаємо ID активного будинку в сесію
     req.session.activeHouseId = houseId;
+    req.session.activeRoomId = null; 
 
     console.log(`[Session] Користувач ${req.session.userId} вибрав будинок ID: ${houseId}`);
     
     // Обов'язково повертаємо JSON статус успіху для jQuery $.ajax
-    return res.status(200).json({ success: true });
+    // Зберігаємо сесію на диску ПЕРЕД тим, як відповісти фронтенду
+    req.session.save((err) => {
+        if (err) return res.status(500).send('Помилка збереження сесії');
+        return res.status(200).json({ success: true });
+    });
 });
 
 //HOUSE REMOVE ROUTE
@@ -836,12 +841,62 @@ app.get('/', function(req, res){
     res.render('index', { activePage: "index" });
 });
 
-app.get('/devicemap', function(req, res){
+/* app.get('/devicemap', function(req, res){
     res.render('devicemap', { 
         activePage: "devicemap"
      });
     
+}); */
+
+app.get('/devicemap', (req, res) => {
+    const userId = req.session.userId;
+    
+    if (!userId) return res.redirect('/login');
+
+    // КРИТИЧНО: Отримуємо свіжі значення з сесії
+    const activeHouseId = req.session.activeHouseId;
+    const activeRoomId = req.session.activeRoomId; // Має бути null після зміни будинку
+
+    console.log(`[GET /devicemap] Loading workspace for User: ${userId} | Active House: ${activeHouseId} | Active Room: ${activeRoomId}`);
+
+    // 1. Отримуємо список будинків
+    db.all('SELECT * FROM houses WHERE userId = ?', [userId], (err, houses) => {
+        if (err) return res.status(500).send('Database Error');
+
+        // Якщо у сесії немає активного будинку, беремо перший зі списку за замовчуванням
+        const currentHouseId = activeHouseId || (houses.length > 0 ? houses[0].houseId : null);
+
+        // 2. ФІЛЬТРАЦІЯ: Отримуємо КІМНАТИ ТІЛЬКИ ДЛЯ ПОТОЧНОГО БУДИНКУ
+        db.all('SELECT * FROM rooms WHERE userId = ? AND houseId = ?', [userId, currentHouseId], (err2, rooms) => {
+            if (err2) return res.status(500).send('Rooms Database Error');
+
+            // 3. Отримуємо об'єкт поточної активної кімнати
+            db.get('SELECT * FROM rooms WHERE roomId = ? AND userId = ? AND houseId = ?', [activeRoomId, userId, currentHouseId], (err3, activeRoom) => {
+                
+                // Якщо кімнати немає (або вона від іншого будинку і повернула undefined), ставимо null
+                const currentRoomId = activeRoom ? activeRoom.roomId : null;
+
+                // 4. Отримуємо пристрої та зв'язки для цієї конкретної кімнати
+                db.all('SELECT * FROM devices WHERE roomId = ? AND userId = ?', [currentRoomId, userId], (err4, devices) => {
+                    db.all('SELECT * FROM connections WHERE roomId = ? AND userId = ?', [currentRoomId, userId], (err5, connections) => {
+                        
+                        // Рендеримо сторінку
+                        res.render('devicemap', {
+                            activePage: "devicemap",
+                            houses: houses,
+                            rooms: rooms, // Передаємо строго відфільтрований масив
+                            activeHouse: houses.find(h => h.houseId == currentHouseId) || null,
+                            activeRoom: activeRoom || null,
+                            devices: devices || [],
+                            connections: connections || []
+                        });
+                    });
+                });
+            });
+        });
+    });
 });
+
 app.get('/statistics', function(req, res){
     res.render('statistics', { activePage: "statistics" });
 });
@@ -850,11 +905,11 @@ app.get('/settings', function(req, res){
     res.render('settings', { activePage: "settings" });
 });
 
-// index page
+/* // index page
 app.get('/', (req, res) => {
   res.render('index');
 });
-
+ */
 app.get('/login', (req, res) => {
   res.render('login');
 });

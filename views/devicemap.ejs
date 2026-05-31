@@ -26,7 +26,7 @@
 
                 <div class="Object Plate">
                     <div class="objectOptions">
-                        <div class="buttonSmall roomPicker" style="background-color: <%- locals.activeRoom ? activeRoom.roomColor + '80' : '#ffa600' %>;"><p><%- locals.activeRoom ? activeRoom.roomName : 'Add a room' %></p></div>
+                        <div class="buttonSmall roomPicker" style="background-color: <%- locals.activeRoom ? activeRoom.roomColor + '80' : '#ffa600' %>;"> <p><%- locals.activeRoom && activeRoom.roomId ? activeRoom.roomName : 'Rooms' %> </p></div>
                         <div class="buttonSmall addRoom" style="align-content: center;"><p>Devices</p></div>
                     </div>
                     <div class="mapCanvas">
@@ -91,7 +91,7 @@
                         </div>
                         
 
-                        <div class="objectArea buttonContainer" style="padding: 0; margin: 20px auto 20px auto">
+                        <div class="buttonContainer bc-fix">
                             <div class="buttonSmall Secondary" id="roomAddWindowCancelButton"><p>Cancel</p></div>
                             <button type="submit" class="buttonSmall Primary" id="houseAddWindowAddButton"><p>Add</p></button>
                         </div>
@@ -118,7 +118,7 @@
                             <input type="color" id="editRoomColor" name="roomColor" value="#ffa600">
                         </div>
 
-                        <div class="objectArea buttonContainer" style="padding: 0; margin: 20px auto 20px auto">
+                        <div class="buttonContainer bc-fix">
                             <div class="buttonSmall Secondary" id="roomEditWindowCancelButton"><p>Cancel</p></div>
                             <button type="submit" class="buttonSmall Primary" id="roomEditWindowEditButton"><p>Edit</p></button>
                         </div>
@@ -129,7 +129,7 @@
             <!-- ВІКНО МЕНЕДЖМЕНТУ ПРИСТРОЇВ (Відкривається по кліку на .addRoom) -->
             <div class="deviceWindowArea">
                 <div class="housePickerWindow Object Large" id="devicePickerWindow" style="display: none;">
-                    <div class="objectHeader"><p>Manage devices for this room</p></div>
+                    <div class="objectHeader"><p>Manage devices</p></div>
                     <div class="optionArea">
                         <% if (locals.devices && devices.length > 0) { %>
                             <% devices.forEach(function(device) { %>
@@ -137,7 +137,7 @@
                                 <div class="Button houseItemButton" data-device-id="<%- device.deviceId %>">
                                     <p><%- device.deviceName %> <span style="font-size: 0.8em; opacity: 0.6;"><%- device.usageScheme %> </span></p>
                                     
-                                    <div class="buttonSmall optionsButton">
+                                    <div id="optionsButton" class="buttonSmall optionsButton">
                                         <img src="/images/dots.png" alt="Options">
                                         <div class="dropdownActions">
                                             <div class="dropdownItem removeDeviceButton"><p>Remove</p></div>
@@ -158,7 +158,7 @@
 
                 <!-- ВІКНО СТВОРЕННЯ НОВОГО ПРИСТРОЮ -->
                 <div class="Login housePickerWindow addHouse Object Large" id="deviceAddWindow" style="margin: 10% auto; display: none">
-                    <div class="objectHeader"><p>Register device</p></div>
+                    <div class="objectHeader"><p>Add a device</p></div>
 
                     <form id="addDeviceForm" action="/addDeviceForm" method="post" novalidate>
                         <div class="input-group">
@@ -175,9 +175,9 @@
                             </select>
                         </div>
 
-                        <div class="objectArea buttonContainer" style="padding: 0; margin: 20px auto 20px auto">
+                        <div class="buttonContainer bc-fix">
                             <div class="buttonSmall Secondary" id="deviceAddWindowCancelButton"><p>Cancel</p></div>
-                            <button type="submit" class="buttonSmall green" id="deviceAddSubmitButton"><p>Register</p></button>
+                            <button type="submit" class="buttonSmall Primary" id="deviceAddSubmitButton"><p>Add</p></button>
                         </div>
                     </form>
                 </div>

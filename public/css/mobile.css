@@ -8,6 +8,7 @@
 
     .container {
         flex-direction: column;
+        overflow-x: hidden;
     }
 
     .leftSide {
@@ -224,7 +225,7 @@
 
     .buttonSmall {
         min-width: 120px;
-
+        max-width: 160px;
     }
     
     #optionsButton {
@@ -234,11 +235,10 @@
     .Button {
         max-width: calc(100vw - 70px);
     }
-/* 
-    .housePickerWindow .optionArea .Button {
-        min-width: calc(100vw - 70px);
-        width: 100%;
-    } */
+
+    .optionArea {
+        width: calc(100% - 40px);
+    }
 
     /* Зберігаємо сітку 2х2 для лічильників Large на мобільному */
     .Large .objectOptions {
@@ -305,5 +305,13 @@
         margin: auto;
     } 
 
+    .Account img {
+        margin: 10px;
+    }
+
+    .dropdownActions {
+    top: 200%;               /* Вирівнюємо по центру кнопки по вертикалі */
+    left: -150%;             /* Виштовхуємо меню повністю праворуч за межі кнопки */
+}
     
 }

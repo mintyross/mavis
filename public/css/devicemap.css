@@ -82,7 +82,36 @@
 
 
 @media (max-width: 620px) {
+    .objectArea {
+        margin: 0;
+    }
     .Plate {
-        margin-top: 100px;
+        margin: 100px auto;
+        width: calc(100% - 40px);
+    }
+
+    #roomPickerWindow, #devicePickerWindow {
+        margin: 40% auto;
+        aspect-ratio: unset;
+    }
+
+    .bc-fix {
+        width: auto;
+        padding: 0;
+        margin: 20px auto 20px auto;
+        width: calc(100% - 40px);
+
+    }
+
+    .buttonSmall {
+        max-width: 160px;
+    }
+
+    .housePickerWindow .buttonContainer {
+        width: 100%;
+    }
+
+    .optionArea {
+        width: calc(100% - 40px);
     }
 }
