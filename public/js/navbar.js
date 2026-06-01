@@ -1,4 +1,9 @@
+/* 
+    Логіка роботи partials/navbar.ejs
+    Цей скрипт містить логіку роботи кнопок, меню та форм.
+*/
 $(document).ready(function() {
+    /* Логіка роботи кнопок */
     $("#housePicker").click(function(e) {
         e.preventDefault();
         // Плавна поява за 400 мілісекунд
@@ -34,7 +39,8 @@ $(document).ready(function() {
         $("#houseAddWindow").css("display", "none");
     });
     
-    // 2. КЛІК НА КНОПКУ FINISH PICKING (Відправка вибраного будинку на сервер)
+    // Логіка роботи форм: валідація та надсилання даних на сервер.
+    /* ФОРМА ВИБОРУ БУДИНКУ */
     $("#housePickerOKButton").click(function(e) {
         e.preventDefault();
 
@@ -43,7 +49,7 @@ $(document).ready(function() {
 
         // Якщо користувач нічого не вибрав — просимо вибрати
         if ($selectedHouse.length === 0) {
-            alert("Будь ласка, виберіть будинок зі списку або додайте новий.");
+            /* alert("Будь ласка, виберіть будинок зі списку або додайте новий."); */
             return;
         }
 
@@ -64,11 +70,11 @@ $(document).ready(function() {
             success: function(response) {
                 console.log("Будинок остаточно активовано на сервері:", houseId);
                 
-                // Закриваємо модальне вікно (якщо потрібно)
+                // Закриваємо модальне вікно
                 $("#housePickerWindow").css("display", "none");
                 $(".windowArea").css("display", "none");
                 
-                // ПЕРЕЗАВАНТАЖУЄМО сторінку, щоб оновити шапку сайту (logoTextContainer)
+                // ПЕРЕЗАВАНТАЖУЄМО сторінку, щоб оновити шапку сайту
                 window.location.reload(); 
             },
             error: function(xhr) {
@@ -78,18 +84,17 @@ $(document).ready(function() {
     });
 
 
-    // 1. ВІДКРИТТЯ: Клікам ТІЛЬКИ на шапку акаунта
+    // Кнопка акаунт
+    /* Поява меню при натисканні на відповідну кнопку */
     $(".accountHeader").click(function(e) {
         e.preventDefault();
         e.stopPropagation();
         $("#accountDropdown").fadeIn(200); 
     });
 
-    // 2. ДОЗВІЛ НА КЛІК: Якщо клікнули на саме посилання, дозволяємо йому працювати
+    // Якщо клікнули на саме посилання, дозволяємо йому працювати
     $("#accountDropdown a").click(function(e) {
-        e.stopPropagation(); // Не даємо події піднятися до батьківських елементів
-        
-        // Перестраховка: якщо браузер все одно блокує перехід, робимо його примусово через JS
+        e.stopPropagation();
         var url = $(this).attr("href");
         if (url) {
             window.location.href = url;
@@ -111,6 +116,7 @@ $(document).ready(function() {
         }
     });
 
+    /* Вихід з акаунту */
     $("#logoutButton").click(function(e) {
         e.preventDefault();
         
@@ -121,30 +127,58 @@ $(document).ready(function() {
         });
     });
 
+    /* Форма додавання будинку */
     $("#addHouseForm").submit(function(e) {
         e.preventDefault(); // Зупиняємо стандартне перезавантаження сторінки
 
+        removeErrors();
+        let isValid = true;
+
+        // Отримуємо значення та видаляємо зайві пробіли
+        const houseNameValue = $("#houseName").val().trim();
+        const houseLocationValue = $("#houseLocation").val().trim();
+        const houseNameInput = document.getElementById('houseName');
+        const houseLocationInput = document.getElementById('houseLocation');
+
         const formData = {
-            houseName: $("#houseName").val(),
-            houseLocation: $("#houseLocation").val()
+            houseName: houseNameValue,
+            houseLocation: houseLocationValue
         };
 
+        // Валідація назви будинку
+        if (!houseNameValue) {
+            showError(houseNameInput, 'This field must not be blank');
+            isValid = false;
+        }
+
+        // Валідація локації будинку
+        if (!houseLocationValue) {
+            showError(houseLocationInput, 'This field must not be blank');
+            isValid = false;
+        }
+
+        /* Якщо є помилки — зупиняємо виконання та НЕ викликаємо AJAX */
+        if (!isValid) {
+            return; 
+        }
+
+        // Відправка даних на сервер, якщо валідація успішна
         $.ajax({
             type: "POST",
             url: "/addHouseForm",
             data: formData,
             success: function(response) {
-                alert("Будинок успішно додано!");
-                // Тут ви можете оновити список будинків на екрані або просто перезавантажити сторінку:
+                /* Перезавантаження сторінки */
                 window.location.reload(); 
             },
             error: function(xhr) {
-                // Виводимо помилку (наприклад, "House already exists")
+                // Виводимо помилку
                 const errorMsg = xhr.responseJSON ? xhr.responseJSON.message : "Помилка сервера";
                 alert(errorMsg);
             }
         });
     });
+
 
     // 1. КЛІК ПО КАРТЦІ БУДИНКУ (Тільки візуальний вибір)
     $(document).on("click", ".houseItemButton", function(e) {
@@ -159,47 +193,44 @@ $(document).ready(function() {
     });
 
 
-    // 2. КЛІК ПО ТРЬОХ КРАПКАХ (Відкриття/закриття меню)
+    // КЛІК ПО ТРЬОХ КРАПКАХ (Відкриття/закриття меню)
     $(document).on("click", ".optionsButton", function(e) {
         // Якщо клікнули на пункт меню (Edit/Remove) або текст всередині них — дозволяємо події йти далі
         if ($(e.target).closest('.dropdownItem').length) {
             return; 
         }
         
-        e.stopPropagation(); // Тепер ізолюємо лише клік по самих крапках
+        e.stopPropagation(); // Ізолюємо лише клік по самих крапках
         
         const $this = $(this);
         $(".optionsButton").not($this).removeClass("active");
         $this.toggleClass("active");
     });
 
-    // 2. Закриваємо меню, якщо клікнули в будь-якому іншому місці екрану (лишається без змін)
+    // Закриваємо меню, якщо клікнули в будь-якому іншому місці екрану
     $(document).click(function() {
         $(".optionsButton").removeClass("active");
     });
 
 
-    // 3. КЛІК НА КНОПКУ EDIT (Редагувати)
+    // КЛІК НА КНОПКУ EDIT (Редагувати)
     $(document).on("click", ".houseEditButton", function(e) {
         e.stopPropagation();
 
-        // Переконайтеся, що клас вашої картки будинку збігається (у EJS ми писали .house-item-btn або .Button)
         const $houseRow = $(this).closest(".houseItemButton"); 
         
-        // НАДІЙНЕ ЗЧИТУВАННЯ ID (через атрибут data-id, який ми вивели в HTML)
         const houseId = $houseRow.attr("data-id"); 
 
         $(".optionsButton").removeClass("active"); // ховаємо меню
 
         
-        console.log("Редагувати будинок:", houseId);
-        // Тут логіка відкриття форми редагування
+        console.log("Editing house:", houseId);
 
         $("#houseEditWindow").css("display", "flex");
         $("#housePickerWindow").css("display", "none");
     });
 
-    // 3. КЛІК НА КНОПКУ EDIT (Редагувати)
+    // КЛІК НА КНОПКУ Cancel (Назад)
     $(document).on("click", "#houseEditWindowCancelButton", function(e) {
         e.preventDefault();
         $("#housePickerWindow").css("display", "flex");
@@ -210,22 +241,20 @@ $(document).ready(function() {
     $(document).on("click", ".removeHouseButton", function(e) {
         e.stopPropagation();
         
-        // Переконайтеся, що клас вашої картки будинку збігається (у EJS ми писали .house-item-btn або .Button)
         const $houseRow = $(this).closest(".houseItemButton"); 
-        
-        // НАДІЙНЕ ЗЧИТУВАННЯ ID (через атрибут data-id, який ми вивели в HTML)
         const houseId = $houseRow.attr("data-id"); 
 
         $(".optionsButton").removeClass("active"); // ховаємо меню
 
         // Якщо ID не знайдено, ми миттєво побачимо це в консолі і не будемо марно штурмувати сервер
         if (!houseId) {
-            console.error("Помилка: Не вдалося знайти атрибут data-id у елемента:", $houseRow);
-            alert("Помилка клієнта: ID будинку не знайдено у верстці!");
+            console.error("ERROR: Could not read element's data-id:", $houseRow);
+            alert("Client Error: House ID was not found.");
             return;
         }
 
-        if (confirm("Ви впевнені, що хочете видалити цей будинок?")) {
+        /* Якщо користувач підтверджує свій вибір, то виконується запит на сервер для видалення будинку з бази даних */
+        if (confirm("You're about to remove the house. Are you sure?")) {
             $.ajax({
                 type: "POST",
                 url: "/houseRemove",
@@ -237,12 +266,13 @@ $(document).ready(function() {
                     });
                 },
                 error: function(xhr) {
-                    alert("Не вдалося видалити: " + xhr.responseText);
+                    alert("Could not delete: " + xhr.responseText);
                 }
             });
         }
     });
 
+    /* Форма редагування будинку */
     $("#editHouseForm").submit(function(e) {
         e.preventDefault();
 
@@ -255,7 +285,7 @@ $(document).ready(function() {
                 houseLocation: $("#editHouseLocationInput").val()
             },
             success: function(response) {
-                alert("Дані будинку успішно оновлено!");
+                /* alert("House information was successfully edited"); */
                 window.location.reload(); // оновлюємо сторінку, щоб побачити зміни
             },
             error: function(xhr) {
@@ -269,3 +299,31 @@ $(document).ready(function() {
     
 
 });
+
+function showError(inputElement, message) {
+    inputElement.style.borderColor = '#ff4d4d';
+    inputElement.style.boxShadow = '0 0 5px rgba(255, 77, 77, 0.5)';
+    
+    // Створюємо об'єкт, для відображення тексту помилки
+    const errorText = document.createElement('span'); 
+    errorText.className = 'error-message';
+    errorText.innerText = message;
+    errorText.style.color = '#ff4d4d';
+    errorText.style.fontSize = '0.85rem';
+    errorText.style.display = 'block';
+    errorText.style.gridColumn = '1 / -1';
+    errorText.style.margin = '5px 0 5px 25px';
+
+    // Вставляємо помилку одразу після контейнера .input-group (із захистом від null-помилок)
+    const container = inputElement.closest('.input-group') || inputElement;
+    container.after(errorText);
+}
+
+// Очищення стилів та текстів помилок
+function removeErrors() {
+    document.querySelectorAll('.error-message').forEach(error => error.remove());
+    document.querySelectorAll('.Login input, form input').forEach(input => {
+        input.style.borderColor = '';
+        input.style.boxShadow = '';
+    });
+}

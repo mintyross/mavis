@@ -1,14 +1,12 @@
+/* 
+    Скрипт надсилає дані, вказані при реєстрації, на сервер, для створення акаунту.
+*/
 document.getElementById('signupForm').addEventListener('submit', async (e) => {
 
     e.preventDefault(); 
 
     const password = document.getElementById('password').value;
     const passwordConfirm = document.getElementById('passwordConfirm').value;
-
-    if (password !== passwordConfirm) {
-        alert("Passwords do not match!");
-        return;
-    }
 
     const formData = new FormData();
     formData.append('userName', document.getElementById('userName').value);
@@ -26,9 +24,12 @@ document.getElementById('signupForm').addEventListener('submit', async (e) => {
             body: formData 
         });
 
+        if (document.querySelectorAll('.error-message').length > 0) {
+            e.preventDefault();
+            return false; 
+        }
+
         if (response.ok) {
-            //alert('Signup successful! Redirecting to home page...');
-            // РЕДІРЕКТ НА ГОЛОВНУ СТОРІНКУ (index)
             window.location.href = '/'; 
         } else {
             const error = await response.json().catch(() => ({}));

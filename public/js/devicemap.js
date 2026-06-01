@@ -1,11 +1,15 @@
+/* 
+    Скрипт логіки сторінки /devicemap
+    Він містить логіку роботи кнопок, меню та форм дії кімнат та пристроїв будинку.
+*/
 $(document).ready(function() {
     $(".roomPicker").click(function(e) {
         e.preventDefault();
         
-        // КРИТИЧНО: Скидаємо стани, показуємо головне вікно вибору, ховаємо вікна додавання/редагування
+        // Скидаємо стани, показуємо головне вікно вибору, ховаємо вікна додавання/редагування
         $("#roomPickerWindow").css("display", "flex");
         $("#roomAddWindow").css("display", "none");
-        $("#roomEditWindow").css("display", "none"); // додано страховку для редагування
+        $("#roomEditWindow").css("display", "none");
         
         $(".roomWindowArea").fadeIn(200); 
     });
@@ -28,6 +32,7 @@ $(document).ready(function() {
         $("#roomAddWindow").css("display", "none");
     });
 
+    /* Форма додавання кімнати */
     $("#addRoomForm").submit(function(e) {
         e.preventDefault(); // Зупиняємо стандартне перезавантаження сторінки
 
@@ -42,43 +47,43 @@ $(document).ready(function() {
             data: formData,
             success: function(response) {
                 alert("The room was successfully added");
-                // Тут ви можете оновити список будинків на екрані або просто перезавантажити сторінку:
                 window.location.reload(); 
             },
             error: function(xhr) {
-                // Виводимо помилку (наприклад, "House already exists")
+                // Виводимо помилку
                 const errorMsg = xhr.responseJSON ? xhr.responseJSON.message : "Sever error";
                 alert(errorMsg);
             }
         });
     });
 
-    // --- 3. ВИДАЛЕННЯ КІМНАТИ (ВИПРАВЛЕНО ДЛЯ ДИНАМІЧНОГО ДЕРЕВА DOM) ---
+    // Форма видалення кімнати
     // Використовуємо делегування через body, щоб уникнути конфліктів при утриманні e.stopPropagation()
     $(document).on("click", ".removeRoomButton", function(e) {
         // Зупиняємо розповсюдження події кліку до базової картки кімнати
         e.stopPropagation();
 
-        // Надійно піднімаємося по DOM-дереву до головної картки
+        // Піднімаємося по DOM-дереву до головної картки
         const $roomCard = $(this).closest(".houseItemButton"); 
 
-        // Читаємо значення атрибутів безпосередньо
+        // Читаємо значення атрибутів
         const roomId = $roomCard.attr("data-room-id"); 
         const houseId = $roomCard.attr("data-house-id"); 
 
         // Ховаємо випадаюче меню опцій
         $(".optionsButton").removeClass("active"); 
 
-        // Перевірочний лог для вашої консолі розробника
-        console.log("[DEBUG REMOVE] Натиснуто видалення. Кімната ID:", roomId, "| Будинок ID:", houseId);
+        // Перевірочний лог для консолі розробника
+        console.log("Attempting to remove room:", roomId, " at house:", houseId);
 
         if (!roomId || !houseId) {
-            console.error("Помилка зчитування ID. Кімната:", roomId, "Будинок:", houseId);
-            alert("Помилка клієнта: Не вдалося знайти ID кімнати або будинку!");
+            console.error("ERROR reading IDs in room:", roomId, "at house:", houseId);
+            alert("CLIENT ERROR: could not read house or room ID.");
             return;
         }
 
-        if (confirm("Ви впевнені, що хочете видалити цю кімнату?")) {
+        /* Підтвердження видалення кімнати */
+        if (confirm("You are about to delete the room. Are you sure?")) {
             $.ajax({
                 type: "POST",
                 url: "/roomRemove",
@@ -90,13 +95,13 @@ $(document).ready(function() {
                     });
                 },
                 error: function(xhr) {
-                    alert("Не вдалося видалити кімнату: " + xhr.responseText);
+                    alert("ERROR: could not delete room: " + xhr.responseText);
                 }
             });
         }
     });
 
-        // --- 6. ВИДАЛЕННЯ ПРИСТРОЮ (DELEGATED CLICK) ---
+        // Форма видалення пристрою
     $(document).on("click", ".removeDeviceButton", function(e) {
         // Зупиняємо баблінг події кліку до базової картки
         e.stopPropagation();
@@ -110,21 +115,21 @@ $(document).ready(function() {
         // Ховаємо випадаюче меню опцій (три крапки)
         $(".optionsButton").removeClass("active"); 
 
-        // Перевірочний лог для вашої консолі розробника (F12)
-        console.log("[DEBUG DEVICE REMOVE] Натиснуто видалення пристрою ID:", deviceId);
+        // Перевірочний лог для консолі розробника
+        console.log("Attempting to delete device:", deviceId);
 
         // Валідація наявності ID
         if (!deviceId) {
-            console.error("Помилка зчитування ID пристрою:", deviceId);
-            alert("Помилка клієнта: Не вдалося знайти ID пристрою у верстці!");
+            console.error("ERROR reading the device ID:", deviceId);
+            alert("CLIENT ERROR: device id could not be found.");
             return;
         }
 
         // Підтвердження дії користувачем
-        if (confirm("Ви впевнені, що хочете видалити цей пристрій? Його зв'язки на карті також зникнуть.")) {
+        if (confirm("You are about to delete the device. Are sure?")) {
             $.ajax({
                 type: "POST",
-                url: "/deviceRemove", // Окремий маршрут на бекенд для пристроїв
+                url: "/deviceRemove", // Окремий маршрут для пристроїв
                 data: { deviceId: deviceId },
                 success: function(response) {
                     // Плавне зникнення картки пристрою з менеджеру пристроїв
@@ -136,23 +141,20 @@ $(document).ready(function() {
                     });
                 },
                 error: function(xhr) {
-                    alert("Не вдалося видалити пристрій: " + xhr.responseText);
+                    alert("Could not delete the device: " + xhr.responseText);
                 }
             });
         }
     });
 
-    // 3. КЛІК НА КНОПКУ EDIT (Редагувати)
+    // Кнопка Edit
     $(document).on("click", "#roomEditWindowCancelButton", function(e) {
         e.preventDefault();
         $("#roomPickerWindow").css("display", "flex");
         $("#roomEditWindow").css("display", "none");
     });
 
-    // Коли користувач натискає на кнопку "Edit" у випадаючому списку кімнати
-        // --- 4. РЕДАГУВАННЯ КІМНАТИ (ОБ'ЄДНАНИЙ ТА ОЧИЩЕНИЙ КЛІК) ---
-        // --- 4. КЛІК НА КНОПКУ РЕДАГУВАННЯ КІМНАТИ (ВИПРАВЛЕНО ЗВ'ЯЗУВАННЯ) ---
-    // Биндимо клік прямо на клас без посередництва document, щоб уникнути конфліктів з e.stopPropagation
+    /* Форма редагування кімнати */
     $(".roomEditButton").click(function(e) {
         // Зупиняємо баблінг, щоб не вибирати кімнату як активну на задньому фоні
         e.stopPropagation();
@@ -166,7 +168,7 @@ $(document).ready(function() {
         const roomName = $roomCard.attr("data-room-name"); 
         const roomColor = $roomCard.attr("data-room-color"); 
 
-        console.log("[FRONTEND DEBUG] Редагування кімнати:", { roomId, houseId, roomName, roomColor });
+        console.log("Editing room:", { roomId, houseId, roomName, roomColor });
 
         // Ховаємо випадаюче меню опцій (три крапки)
         $(".optionsButton").removeClass("active"); 
@@ -189,15 +191,13 @@ $(document).ready(function() {
         $("#roomEditWindow").css("display", "none");
     });
 
-
-    // Кнопка скасування у вікні редагування
     $(document).on("click", "#roomEditWindowCancelButton", function(e) {
         e.preventDefault();
         $("#roomPickerWindow").css("display", "flex");
         $("#roomEditWindow").css("display", "none");
     });
 
-    // --- 5. ЗБЕРЕЖЕННЯ РЕДАГОВАНИХ ДАНИХ КІМНАТИ (AJAX) ---
+    // Збереження редагованих даних кімнати за допомогою ajax
     $("#editRoomForm").submit(function(e) {
         e.preventDefault();
 
@@ -209,35 +209,6 @@ $(document).ready(function() {
         };
 
         console.log("Sending payload to server:", updateData); 
-
-        $.ajax({
-            type: "POST",
-            url: "/editRoomForm",
-            data: updateData,
-            success: function(response) {
-                alert("Room data successfully updated!");
-                window.location.reload(); 
-            },
-            error: function(xhr) {
-                alert("Error updating room: " + xhr.responseText);
-            }
-        });
-    });
-
-
-    // --- 5. ЗБЕРЕЖЕННЯ РЕДАГОВАНИХ ДАНИХ КІМНАТИ (AJAX) ---
-    $("#editRoomForm").submit(function(e) {
-        e.preventDefault();
-
-        // Тепер ми просто і надійно зчитуємо значення прямо з форми
-        const updateData = {
-            roomId: $("#editRoomIdInput").val(),
-            houseId: $("#editHouseIdInput").val(), // Значення гарантовано заповнене з кроку 4
-            roomName: $("#editRoomName").val(),
-            roomColor: $("#editRoomColor").val()
-        };
-
-        console.log("Sending payload to server:", updateData); // Роздрукуйте це в консолі браузера (F12) перед відправкою
 
         $.ajax({
             type: "POST",
@@ -274,11 +245,11 @@ $(document).ready(function() {
         });
     });
 
-        // Клік на кнопку "Add a device"
+    // Клік на кнопку додавання девайсу
     $(".addRoom").click(function(e) {
         e.preventDefault();
         
-        // КРИТИЧНО: Гарантуємо, що вікно вибору пристроїв стане видимим, а форма додавання — прихованою
+        // Вікно вибору пристроїв стане видимим, а форма додавання — прихованою
         $("#devicePickerWindow").css("display", "flex");
         $("#deviceAddWindow").css("display", "none");
         
@@ -306,7 +277,7 @@ $(document).ready(function() {
         $("#deviceAddWindow").css("display", "none");
     });
 
-    // AJAX Сабміт реєстрації нового пристрою
+    // Форма реєстрації нового пристрою за допомогою ajax
     $("#addDeviceForm").submit(function(e) {
         e.preventDefault();
 
@@ -327,21 +298,4 @@ $(document).ready(function() {
             }
         });
     });
-
-/*          // ЗАХИСТ ВІД БАБЛІНГУ: Зупиняємо розповсюдження кліку від меню до основної картки
-    $(document).on("click", ".dropdownActions", function(e) {
-        // Цей рядок блокує передачу кліку вгору по дереву DOM до елемента .houseItemButton
-        e.stopPropagation();
-    });
-
-    // Також переконайтеся, що кнопка відкриття самого меню (три крапки) не активує клік картки
-    $(document).on("click", ".optionsButton", function(e) {
-        e.stopPropagation();
-        
-        // Додатковий корисний код: перемикаємо видимість меню при кліку на три крапки
-        $(this).find(".dropdownActions").toggle();
-    });  */
-
-
-
 });

@@ -11,7 +11,7 @@ html, body {
     width: 100%;
     min-height: 100vh;
     font-family: sans-serif;
-    background-image: url('../images/mavis-background.webp');
+    background-image: url('../images/mavis-background.jpg');
     background-repeat: repeat-y;
     background-size: cover;
     background-attachment:scroll;

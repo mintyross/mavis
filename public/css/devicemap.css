@@ -1,3 +1,4 @@
+/* style="width:100%; padding:10px; background:#2c2c2c; color:white; border:none; border-radius:5px;" */
 .mapCanvas {
     display: flex;
     flex-grow: 1; /* КРИТИЧНО: Примушує блок зайняти весь доступний простір по вертикалі */
@@ -80,6 +81,9 @@
   outline-offset: 2px;
 }
 
+.bc-fix {
+    margin: 20px;
+}
 
 @media (max-width: 620px) {
     .objectArea {

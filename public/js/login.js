@@ -1,3 +1,8 @@
+/* Скрипт створений для сторінки /login надсилає дані до серверу при натисканні на кнопку входу до акауну
+   Він також виконує перевірку: якщо існує помилка, то скрипт зупиняється,
+   якщо немає помилок - виконує перенаправлення на головну сторнку / 
+*/
+
 document.getElementById('loginForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     
@@ -11,8 +16,12 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
             body: JSON.stringify({ username, password })
         });
 
+        if (document.querySelectorAll('.error-message').length > 0) {
+            e.preventDefault();
+            return false; 
+        }
+
         if (response.ok) {
-            //alert('Login successful! Redirecting...');
             window.location.href = '/';
         } else {
             const errorData = await response.json().catch(() => ({}));

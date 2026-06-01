@@ -31,6 +31,96 @@ app.use(session({
     cookie: { maxAge: 1800000 } // 30
 }));
 
+// Зберігаємо оригінальні функції системного виводу Node.js
+const originalNodeLog = console.log;
+const originalNodeError = console.error;
+
+// Функція для запису бекенд-логів у базу даних SQLite
+function saveBackendLogToDB(type, args) {
+    // Перетворюємо аргументи логу (об'єкти, рядки) на чистий текст
+    const message = args.map(arg => {
+        return typeof arg === 'object' ? JSON.stringify(arg) : String(arg);
+    }).join(' ');
+
+    const fullMessage = `[SERVER_${type}] - ${message}`;
+
+    // Перевіряємо, чи база даних ініціалізована та відкрита
+    if (typeof db !== 'undefined' && db && typeof db.run === 'function') {
+        // Оскільки в контексті глобального логу у нас немає доступу до `req.session`, 
+        // ми записуємо лог з userId = null.
+        db.run(
+            'INSERT INTO logs (userId, logMessage) VALUES (?, ?)',
+            [null, fullMessage],
+            function(err) {
+                if (err) {
+                    process.stderr.write(`Failed to save server log to SQLite: ${err.message}\n`);
+                }
+            }
+        );
+    }
+}
+
+// Перевизначаємо системний console.log для сервера
+console.log = function(...args) {
+    originalNodeLog.apply(console, args); // Продовжуємо виводити лог у консоль VSCode
+    saveBackendLogToDB('INFO', args);
+};
+
+// Перевизначаємо системний console.error для сервера
+console.error = function(...args) {
+    originalNodeError.apply(console, args); // Продовжуємо виводити лог у консоль VSCode
+    saveBackendLogToDB('ERROR', args);
+};
+
+function logToDatabase(userId, type, message, url = 'SERVER') {
+    const fullMessage = `[${type}] [URL: ${url}] - ${message}`;
+    db.run(
+        'INSERT INTO logs (userId, logMessage) VALUES (?, ?)',
+        [userId || null, fullMessage],
+        (err) => {
+            if (err) process.stderr.write(`Server DB log failed: ${err.message}\n`);
+        }
+    );
+}
+
+// Приклад використання у звичайному маршруті:
+app.get('/getDevices', (req, res) => {
+    db.all('SELECT * FROM devices', [], (err, rows) => {
+        if (err) {
+            // Записуємо системну помилку бази даних у таблицю логів
+            logToDatabase(req.session?.userId, 'SERVER_ERROR', err.message, '/getDevices');
+            return res.status(500).send('Internal Server Error');
+        }
+        res.json(rows);
+    });
+});
+
+// Автоматичне очищення старих логів (Запускається раз на добу)
+function startLogCleanupInterval() {
+    const TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000; // в мілісекундах
+    const RETENTION_DAYS = 7; // Зберігаємо логування лише за останні 7 днів
+
+    setInterval(() => {
+        // SQL запит видаляє рядки, де дата створення менша за поточний час мінус N днів
+        const query = `DELETE FROM logs WHERE created_at < datetime('now', '-${RETENTION_DAYS} days')`;
+
+        db.run(query, function(err) {
+            if (err) {
+                // Використовуємо системний вивід, щоб не засмічувати лог-потік
+                process.stderr.write(`[LOGS CLEANUP] ERROR deleting logs: ${err.message}\n`);
+            } else {
+                if (this.changes > 0) {
+                    process.stdout.write(`[LOGS CLEANUP] Cleanup successful. Logs removed: ${this.changes}\n`);
+                }
+            }
+        });
+    }, TWENTY_FOUR_HOURS);
+}
+
+// Запускаємо фонову задачу при старті сервера
+startLogCleanupInterval();
+
+
 // Маршрут для відображення сторінки логіну
 app.get('/login', (req, res) => {
     if (req.session && req.session.userId) {
@@ -895,6 +985,36 @@ app.get('/devicemap', (req, res) => {
             });
         });
     });
+});
+
+app.post('/api/logs', (req, res) => {
+    try {
+        // Парсимо дані незалежно від того, як вони прийшли (через fetch чи sendBeacon)
+        const data = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
+        
+        // Отримуємо userId з активної сесії Express. Якщо користувач не увійшов — ставимо null
+        const userId = req.session && req.session.userId ? req.session.userId : null;
+        
+        // Форматуємо повідомлення, щоб зберегти контекст сторінки та тип логу (INFO/ERROR)
+        const fullMessage = `[${data.type}] [URL: ${data.url}] - ${data.message}`;
+
+        /* Записуємо лог до бази даних */
+        db.run(
+            'INSERT INTO logs (userId, logMessage) VALUES (?, ?)',
+            [userId, fullMessage],
+            function(err) {
+                if (err) {
+                    // Використовуємо системний console.error, щоб уникнути нескінченного циклу
+                    process.stderr.write(`Database log insert failed: ${err.message}\n`);
+                }
+            }
+        );
+
+        // Повертаємо швидку відповідь 204 (No Content)
+        res.sendStatus(204);
+    } catch (e) {
+        res.sendStatus(400);
+    }
 });
 
 app.get('/statistics', function(req, res){
