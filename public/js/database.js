@@ -1,3 +1,5 @@
+/* Містить скрипт для створення SQLite бази даних */
+
 const sqlite3 = require('sqlite3').verbose();
 const DBSOURCE = './db/db.sqlite';
 
@@ -8,7 +10,7 @@ const db = new sqlite3.Database(DBSOURCE, (err) => {
     } else {
         console.log('Connected to the SQLite database');
 
-        // Увімкнення підтримки FOREIGN KEY в SQLite (за замовчуванням вимкнено)
+        // Увімкнення підтримки FOREIGN KEY в SQLite для запобігання збереженню висячих даних
         db.run("PRAGMA foreign_keys = ON");
 
         // USERS TABLE
@@ -18,7 +20,8 @@ const db = new sqlite3.Database(DBSOURCE, (err) => {
             email VARCHAR(100) NOT NULL UNIQUE,
             hashedPassword VARCHAR(255) NOT NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            /* siteTheme INTEGER, */
+            siteTheme TEXT DEFAULT 'classic',
+            background TEXT,
             avatar TEXT DEFAULT '/images/user.png'
         )`, (err) => {
             if (err) console.error('Users table error:', err.message);
@@ -31,10 +34,6 @@ const db = new sqlite3.Database(DBSOURCE, (err) => {
             userId INTEGER,
             houseName TEXT NOT NULL UNIQUE,
             houseLocation TEXT NOT NULL UNIQUE,
-            waterUsage INTEGER,
-            electricityUsage INTEGER,
-            gasUsage INTEGER,
-            internetUsage INTEGER,
             FOREIGN KEY(userId) REFERENCES users(userId) ON DELETE CASCADE
         )`, (err) => {
             if (err) console.error('Houses table error:', err.message);
@@ -92,6 +91,7 @@ const db = new sqlite3.Database(DBSOURCE, (err) => {
             else console.log('Table connections is created');
         });
 
+        // LOGS TABLE
         db.run(`CREATE TABLE IF NOT EXISTS logs (
             logId INTEGER PRIMARY KEY AUTOINCREMENT,
             userId INTEGER,
@@ -99,9 +99,23 @@ const db = new sqlite3.Database(DBSOURCE, (err) => {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY(userId) REFERENCES users(userId) ON DELETE CASCADE
         )`, (err) => {
-            if (err) console.error('Connections table error:', err.message);
-            else console.log('Table connections is created');
+            if (err) console.error('Logs table error:', err.message);
+            else console.log('Table logs is created');
         });
+
+        // RESOURCE USAGE TABLE
+        db.run(`CREATE TABLE IF NOT EXISTS resourceUsage (
+            houseId INTEGER PRIMARY KEY,
+            water REAL DEFAULT 0,
+            electricity REAL DEFAULT 0,
+            internet REAL DEFAULT 0,
+            gas REAL DEFAULT 0,
+            FOREIGN KEY(houseId) REFERENCES houses(houseId) ON DELETE CASCADE
+        )`, (err) => {
+            if (err) console.error('Resource table creation failed:', err.message);
+            else console.log('Table resourceUsage verified successfully');  
+        });
+
     }
 });
 

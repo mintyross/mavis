@@ -46,7 +46,7 @@ $(document).ready(function() {
             url: "/addRoomForm",
             data: formData,
             success: function(response) {
-                alert("The room was successfully added");
+                /* alert("The room was successfully added"); */
                 window.location.reload(); 
             },
             error: function(xhr) {
@@ -215,7 +215,7 @@ $(document).ready(function() {
             url: "/editRoomForm",
             data: updateData,
             success: function(response) {
-                alert("Room data successfully updated!");
+                /* alert("Room data successfully updated!"); */
                 window.location.reload(); 
             },
             error: function(xhr) {

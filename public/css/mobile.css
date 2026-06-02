@@ -103,10 +103,13 @@
     /* ПОВНИЙ СКИД ДЛЯ МОБІЛЬНОЇ РОБОЧОЇ ОБЛАСТІ */
     .objectArea {
         width: 100% ;
-        margin: 15px 15px 80px 15px;
+        /* margin: 15px 15px 80px 15px; */
+        margin: 0;
         grid-template-columns: 1fr;
-        padding: 0;
-        padding-bottom: 100px;
+    }
+
+    .objectArea .gridColumn {
+        margin: 15px 15px 80px 15px;
     }
 
     /* ВИПРАВЛЕНО: Колона повністю втрачає десктопні обмеження */
@@ -130,7 +133,7 @@
     .Object.Large {
         width: calc(100% - 30px) ;
         aspect-ratio: 1;
-        height: auto ; /* УСУВАЄ БАГ: скасовує 550px, картка адаптується під контент */
+        height: fit-content; /* УСУВАЄ БАГ: скасовує 550px, картка адаптується під контент */
         border-radius: 30px;
         margin: 0;
     }
@@ -310,8 +313,15 @@
     }
 
     .dropdownActions {
-    top: 200%;               /* Вирівнюємо по центру кнопки по вертикалі */
-    left: -150%;             /* Виштовхуємо меню повністю праворуч за межі кнопки */
-}
+        top: 50%;
+        left: -400%;      
+    }
+
+    .housePickerWindow .optionArea .Button {
+        margin: 15px auto 15px auto;
+    }
     
+    .buttonContainer:not(#roomPickerWindow .buttonContainer, #devicePickerWindow .buttonContainer, #addHouseButtonContainer) {
+        width: calc(100% - 40px) ;
+    }
 }

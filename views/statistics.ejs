@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]>      <html class="no-js"> <!--<![endif]-->
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Mavis - Statistics</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="css/main.css">
+        <link rel="stylesheet" href="css/settings.css">
+        <link rel="stylesheet" href="css/mobile.css">
+    </head>
+    <body data-theme="<%- user.siteTheme %>">
+        <div class="container">
+
+            <%- include('partials/navbar') %>
+
+            <div class="objectArea">
+
+                <div class="Object Login">
+                    <div class="objectHeader">
+                        <h1>House statistics</h1>
+                    </div>
+                    <div class="objectOptions" id="Statistics">
+                        <div class="Button"><p>Water usage: </p><p> <%- (locals.usage && locals.usage.water !== undefined) ? usage.water : 0 %> m³ </p></div>
+                        <div class="Button"><p>Gas usage: </p><p> <%- (locals.usage && locals.usage.gas !== undefined) ? usage.gas : 0 %> m³ </p></div>
+                        <div class="Button"><p>Electricity usage: </p><p> <%- (locals.usage && locals.usage.electricity !== undefined) ? usage.electricity : 0 %> kW </p></div>
+                        <div class="Button"><p>Internet usage: </p><p> <%- (locals.usage && locals.usage.internet !== undefined) ? usage.internet : 0 %> Gb </p></div>
+                    </div>
+                </div>
+
+                <div class="Object Login">
+                    <div class="objectHeader">
+                        <h1>Resorce usage</h1>
+                    </div>
+                    <form id="resourceUsageForm" method="post" novalidate>
+
+                        <div class="input-group">
+                            <label for="waterUsage">Water, m³</label>
+                            <input type="number" id="waterUsage" name="waterUsage" placeholder="12">
+                        </div>
+
+                        <div class="input-group">
+                            <label for="electricityUsage">Electricity, kW</label>
+                            <input type="number" id="electricityUsage" name="electricityUsage" placeholder="240">
+                        </div>
+
+                        <div class="input-group">
+                            <label for="internetUsage">Internet traffic, Gb</label>
+                            <input type="number" id="internetUsage" name="internetUsage" placeholder="989">
+                        </div>
+
+                        <div class="input-group">
+                            <label for="gasUsage">Natural gas, m³</label>
+                            <input type="number" id="gasUsage" name="gasUsage" placeholder="25">
+                        </div>
+
+                        <button type="submit" class="login-btn buttonSmall green" id="resourceUsageSend"><p>Send</p></button>
+                    </form>
+                </div> 
+            </div>
+            
+        </div> 
+
+        
+        <script src="/js/statistics.js"></script>
+    </body>
+</html>

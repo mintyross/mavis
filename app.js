@@ -101,7 +101,7 @@ function startLogCleanupInterval() {
     const RETENTION_DAYS = 7; // Зберігаємо логування лише за останні 7 днів
 
     setInterval(() => {
-        // SQL запит видаляє рядки, де дата створення менша за поточний час мінус N днів
+        // SQL запит видаляє рядки, де дата створення менша за поточний час мінус кількість днів
         const query = `DELETE FROM logs WHERE created_at < datetime('now', '-${RETENTION_DAYS} days')`;
 
         db.run(query, function(err) {
@@ -158,22 +158,41 @@ app.use((req, res, next) => {
 
     // 2. Якщо користувач АВТОРИЗОВАНИЙ (є сесія) -> йдемо в базу за даними
     if (req.session && req.session.userId) {
-        db.get('SELECT userName, avatar FROM users WHERE userId = ?', [req.session.userId], (err, userFromDb) => {
+        db.get('SELECT userName, avatar, siteTheme, background FROM users WHERE userId = ?', [req.session.userId], (err, userFromDb) => {
             if (err) {
                 console.error("Помилка БД (users):", err);
                 return res.redirect('/login'); 
             }
 
             if (userFromDb) {
-                req.userName = userFromDb.userName;
-                req.avatar = userFromDb.avatar;
+                // 1. КРИТИЧНЕ ВИПРАВЛЕННЯ: Записуємо дані в req.session, а не в req!
+                req.session.userName = userFromDb.userName;
+                req.session.avatar = userFromDb.avatar;
+                req.session.siteTheme = userFromDb.siteTheme;
+                req.session.background = userFromDb.background || '../images/mavis-background.jpg';
             }
 
+            // Формуємо безпечне дефолтне значення для теми (якщо в БД пусто — ставимо 'simple')
+            const activeTheme = req.session.siteTheme || 'simple';
+
             res.locals.activePage = "";
+            
+            // 2. Надійно наповнюємо об'єкт res.locals.user, використовуючи синхронізовану сесію
             res.locals.user = {
-                avatar: req.avatar || '/images/user.png',
-                userName: req.userName || 'Користувач'
+                avatar: req.session.avatar || '/images/user.png',
+                userName: req.session.userName || 'Користувач',
+                siteTheme: activeTheme,
+                // Обов'язково міняємо відносний шлях '../' на стабільний абсолютний '/'
+                background: req.session.background 
             };
+
+            // 3. ЗБЕРІГАЄМО СЕСІЮ ПРИМУСОВО: Це гарантує, що дані запишуться на диск до відправки сторінки браузеру
+            req.session.save((saveErr) => {
+                if (saveErr) console.error("Session locking failure:", saveErr);
+                
+                // Тепер рендеримо сторінку або пропускаємо middleware далі за допомогою next()
+                // Якщо це окремий маршрут:
+            });
 
             // 1-Й КРОК: Отримуємо список будинків
             db.all(
@@ -207,7 +226,41 @@ app.use((req, res, next) => {
                         return next(); 
                     }
 
-                    // 2-Й КРОК: Запускаємо запит кімнат (Переконуємося, що ми дістаємо houseId для зв'язку)
+                    // КРИТИЧНЕ ВИПРАВЛЕННЯ: Міняємо db.all на db.get, оскільки шукаємо ОДИН конкретний рядок лічильників
+                    db.get(
+                        'SELECT water, electricity, internet, gas FROM resourceUsage WHERE houseId = ?',
+                        [currentHouseId], // Передаємо ТІЛЬКИ один параметр, який відповідає знаку '?' у запиті
+                        (err2, usageRow) => {
+                            if (err2) {
+                                console.error('Помилка БД (resourceUsage):', err2);
+                                // Фалбек: якщо сталася помилка БД, виділяємо нульові лічильники, щоб сторінка не падала
+                                res.locals.usage = { water: 0, electricity: 0, internet: 0, gas: 0 };
+                            } else {
+                                // Якщо для цього будинку ще немає записів у базі, створюємо нульовий об'єкт-заглушку
+                                const currentUsage = usageRow || { water: 0, electricity: 0, internet: 0, gas: 0 };
+
+                                // Записуємо актуальні накопичені метрики в сесію
+                                req.session.water = currentUsage.water;
+                                req.session.electricity = currentUsage.electricity;
+                                req.session.internet = currentUsage.internet;
+                                req.session.gas = currentUsage.gas;
+
+                                // Надійно наповнюємо об'єкт у locals, який очікує ваш index.ejs
+                                res.locals.usage = {
+                                    water: req.session.water,
+                                    electricity: req.session.electricity,
+                                    internet: req.session.internet,
+                                    gas: req.session.gas
+                                };
+                            }
+
+                            // КРИТИЧНО: Тепер, коли дані завантажено та записано, викликаємо рендер сторінки index
+                            // Переконайся, що функція res.render('index', ...) викликається саме ТУТ всередині колбеку!
+                        }
+                    );
+
+
+                    // 2-Й КРОК: Запускаємо запит кімнат
                     db.all(
                         'SELECT roomId, roomName, roomColor, houseId FROM rooms WHERE userId = ? AND houseId = ?', 
                         [req.session.userId, currentHouseId], 
@@ -826,26 +879,26 @@ app.post('/deviceRemove', (req, res) => {
 
 //ROOM DELETE ROUTE
 app.post('/roomRemove', (req, res) => {
-    // КОРЕКТНО: Витягуємо roomId з req.body, куди його надіслав jQuery $.ajax
-    /* const { houseId, roomId } = req.body;  */
-    const houseId = req.session.activeHouseId;
-    const roomId = req.session.activeRoomId;
+    // 1. КРИТИЧНЕ ВИПРАВЛЕННЯ: Читаємо ІДЕНТИФІКАТОРИ безпосередньо з тіла запиту (req.body)
+    // Це саме ті дані, які клікнув користувач і надіслав jQuery $.ajax({ data: { roomId, houseId } })
+    const { houseId, roomId } = req.body; 
     const userId = req.session.userId; 
 
-    // 1. Перевірка авторизації
+    // Перевірка авторизації користувача
     if (!userId) {
         return res.status(401).send('Unauthorized');
     }
 
+    // Перевіряємо чи прийшли валідні ідентифікатори з фронтенду
     if (!houseId) {
-        return res.status(400).send('Pick a house to operate');
+        return res.status(400).send('Missing House ID parameter');
     }
 
     if (!roomId) {
-        return res.status(400).send('Pick a room to operate');
+        return res.status(400).send('Missing Room ID parameter');
     }
 
-    // 2. SQL-запит із потрійною перевіркою (Кімната, Будинок ТА ID власника для безпеки)
+    // 2. Безпечний SQL-запит: видаляємо тільки ОДНУ конкретну кімнату, що належить цьому юзеру та будинку
     const query = 'DELETE FROM rooms WHERE houseId = ? AND userId = ? AND roomId = ?';
 
     db.run(query, [houseId, userId, roomId], function(err) {
@@ -854,21 +907,21 @@ app.post('/roomRemove', (req, res) => {
             return res.status(500).send('Deletion error');
         }
 
-        // Якщо rows affected (this.changes) дорівнює 0, значить запис не знайдено або він чужий
         if (this.changes === 0) {
-            return res.status(403).send('The room is not found or you are unauthorized');
+            return res.status(403).send('The room is not found or you are unauthorized to delete it');
         }
 
-        console.log(`[DB] User ${userId} deleted room ${roomId} from house ${houseId}`);
+        console.log(`[DB] User ${userId} safely deleted room ${roomId} from house ${houseId}`);
 
-        // 3. ВИПРАВЛЕНО: Якщо видалена кімната була активною в сесії — скидаємо саме КІМНАТУ, а не будинок!
-        if (req.session.activeRoomId == roomId) {
+        // 3. Скидаємо вибір у сесії ТІЛЬКИ якщо видалена кімната була поточною активною кімнатою користувача
+        if (req.session.activeRoomId && req.session.activeRoomId == roomId) {
             req.session.activeRoomId = null;
         }
 
         return res.status(200).json({ success: true });
     });
 });
+
 
 // ROOM EDIT ROUTE
 // ROOM EDIT ROUTE WITH HOUSE VALIDATION
@@ -1017,13 +1070,193 @@ app.post('/api/logs', (req, res) => {
     }
 });
 
+app.post('/updateTheme', (req, res) => {
+    const userId = req.session.userId;
+
+    // Перевірка авторизації
+    if (!userId) {
+        return res.status(401).json({ message: 'Unauthorized' });
+    }
+
+    // Робимо атомарний SQL-апдейт: якщо було simple — стане classic, і навпаки
+    const updateQuery = `
+        UPDATE users 
+        SET siteTheme = CASE WHEN siteTheme = 'simple' THEN 'classic' ELSE 'simple' END 
+        WHERE userId = ?
+    `;
+
+    db.run(updateQuery, [userId], function(err) {
+        if (err) {
+            console.error('Database theme update error:', err.message);
+            return res.status(500).json({ message: 'Database error' });
+        }
+
+        // Одразу дістаємо оновлене значення з бази даних, щоб синхронізувати його із сесією
+        db.get('SELECT siteTheme FROM users WHERE userId = ?', [userId], (selectErr, row) => {
+            if (selectErr || !row) {
+                return res.status(500).json({ message: 'Failed to retrieve updated theme' });
+            }
+
+            // Оновлюємо значення теми в поточній сесії користувача
+            req.session.siteTheme = row.siteTheme;
+
+            // Повертаємо нову тему у форматі JSON для нашого jQuery-скрипта
+            res.status(200).json({ success: true, newTheme: row.siteTheme });
+        });
+    });
+});
+
+app.get('/logs', (req, res) => {
+    db.all('SELECT * FROM logs ORDER BY created_at DESC LIMIT 50', [], (err, rows) => {
+        if (err) return res.status(500).send('Database tracking error');
+        
+        // Pass rows to a new file named views/logs.ejs
+        res.render('logs', { logs: rows });
+    });
+});
+
+
 app.get('/statistics', function(req, res){
     res.render('statistics', { activePage: "statistics" });
 });
 
-app.get('/settings', function(req, res){
-    res.render('settings', { activePage: "settings" });
+app.get('/settings', (req, res) => {
+    const userId = req.session.userId;
+    if (!userId) return res.redirect('/login');
+
+    // 1. Отримуємо останні 50 логів з бази даних
+    db.all('SELECT * FROM logs ORDER BY created_at DESC LIMIT 50', [], (err, logRows) => {
+        if (err) {
+            console.error('Failed to load logs for settings page:', err);
+            // Фалбек: якщо сталася помилка, передаємо пустий масив, щоб сторінка не падала
+            return res.render('settings', { logs: [] });
+        }
+
+        // 2. КРИТИЧНЕ ВИПРАВЛЕННЯ: Обов'язково передаємо масив під іменем 'logs'
+        // Також передаємо об'єкт user (якщо він потрібен для відображення вашої теми)
+        res.render('settings', { 
+            logs: logRows, 
+            /* user: { 
+                siteTheme: req.session.siteTheme || 'simple',
+                userName: req.locals.userName,
+                avatar: req.locals.avatar
+            }, */
+            user: {
+                avatar: req.session.avatar,
+                userName: req.session.userName,
+                siteTheme: req.session.siteTheme,
+                background: req.session.background
+            },
+            activePage: "settings"
+        });
+    });
 });
+
+app.post('/uploadBackground', upload.single('background'), (req, res) => {
+    const userId = req.session.userId;
+    if (!userId) return res.status(401).json({ error: 'Unauthorized' });
+
+    if (!req.file) {
+        return res.status(400).json({ error: 'No valid image file detected' });
+    }
+
+    // Формуємо чистий абсолютний веб-шлях до файлу
+    const backgroundWebPath = `/uploads/${req.file.filename}`;
+
+    // Оновлюємо SQLite базу даних для конкретного користувача
+    const query = 'UPDATE users SET background = ? WHERE userId = ?';
+    db.run(query, [backgroundWebPath, userId], function(err) {
+        if (err) {
+            console.error('Database async background crash:', err.message);
+            return res.status(500).json({ error: 'Database update failed' });
+        }
+
+        // Синхронізуємо дані з активною сесією сервера
+        req.session.background = backgroundWebPath;
+
+        req.session.save((saveErr) => {
+            if (saveErr) {
+                console.error(saveErr);
+                return res.status(500).json({ error: 'Session locking error' });
+            }
+            
+            // ПОВЕРТАЄМО JSON: Узгоджено ключ 'backgroundUrl' з вашим фронтендом
+            return res.status(200).json({ 
+                success: true, 
+                backgroundUrl: backgroundWebPath 
+            });
+        });
+    });
+});
+
+app.post('/resetBackground', (req, res) => {
+    const userId = req.session.userId;
+    if (!userId) return res.status(401).json({ error: 'Unauthorized' });
+
+    // Оновлюємо рядок у базі даних: записуємо NULL, що означає використання дефолтного фону
+    const query = 'UPDATE users SET background = NULL WHERE userId = ?';
+    
+    db.run(query, [userId], function(err) {
+        if (err) {
+            console.error('Database reset background error:', err.message);
+            return res.status(500).json({ error: 'Database reset failed' });
+        }
+
+        // Синхронізуємо сесію сервера з дефолтним шляхом (без відносних точок '../')
+        req.session.background = '/images/mavis-background.jpg';
+
+        req.session.save((saveErr) => {
+            if (saveErr) {
+                console.error(saveErr);
+                return res.status(500).json({ error: 'Session locking error' });
+            }
+            
+            // Повертаємо успішну JSON відповідь на фронтенд
+            return res.status(200).json({ success: true });
+        });
+    });
+});
+
+app.post('/resourceUsage', (req, res) => {
+    const userId = req.session.userId;
+    const houseId = req.session.activeHouseId;
+
+    // Перевірка авторизації та наявності активного будинку
+    if (!userId) return res.status(401).json({ error: 'Unauthorized' });
+    if (!houseId) return res.status(400).json({ error: 'Please select a house before submitting counter metrics' });
+
+    // Отримуємо значення з форми та примусово перетворюємо на числа (якщо пусто — ставимо 0)
+    const waterInput = parseFloat(req.body.waterUsage) || 0;
+    const electricityInput = parseFloat(req.body.electricityUsage) || 0;
+    const internetInput = parseFloat(req.body.internetUsage) || 0;
+    const gasInput = parseFloat(req.body.gasUsage) || 0;
+
+    // АТОМАРНИЙ SQL-ЗАПИТ (UPSERT за houseId): Додає нові дані до поточних лічильників будинку
+    const query = `
+        INSERT INTO resourceUsage (houseId, water, electricity, internet, gas)
+        VALUES (?, ?, ?, ?, ?)
+        ON CONFLICT(houseId) DO UPDATE SET
+            water = water + excluded.water,
+            electricity = electricity + excluded.electricity,
+            internet = internet + excluded.internet,
+            gas = gas + excluded.gas
+    `;
+
+    db.run(query, [houseId, waterInput, electricityInput, internetInput, gasInput], function(err) {
+        if (err) {
+            console.error('Database accumulation error inside resourceUsage:', err.message);
+            return res.status(500).json({ error: 'Failed to increment resource usage counters' });
+        }
+
+        console.log(`[COUNTER] House ${houseId} metrics incremented. Water: +${waterInput} m³`);
+
+        return res.status(200).json({ 
+            success: true, 
+            message: "Counters updated successfully for this house" 
+        });
+    });
+});
+
 
 /* // index page
 app.get('/', (req, res) => {

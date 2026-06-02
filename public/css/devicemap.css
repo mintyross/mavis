@@ -1,4 +1,3 @@
-/* style="width:100%; padding:10px; background:#2c2c2c; color:white; border:none; border-radius:5px;" */
 .mapCanvas {
     display: flex;
     flex-grow: 1; /* КРИТИЧНО: Примушує блок зайняти весь доступний простір по вертикалі */
@@ -111,9 +110,9 @@
         max-width: 160px;
     }
 
-    .housePickerWindow .buttonContainer {
+    /* .housePickerWindow .buttonContainer {
         width: 100%;
-    }
+    } */
 
     .optionArea {
         width: calc(100% - 40px);

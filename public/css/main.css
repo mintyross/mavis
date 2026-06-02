@@ -11,10 +11,22 @@ html, body {
     width: 100%;
     min-height: 100vh;
     font-family: sans-serif;
-    background-image: url('../images/mavis-background.jpg');
     background-repeat: repeat-y;
     background-size: cover;
     background-attachment:scroll;
+}
+
+body[data-theme="classic"] {
+    background-image: var(--user-bg-image);
+}
+
+body[data-theme="simple"] {
+    background-image: none !important;
+    background-color:floralwhite;
+}
+
+body {
+    background-color:floralwhite;
 }
 
 h1, h2, h3, h4, h5, h6, p, a {
@@ -22,7 +34,6 @@ h1, h2, h3, h4, h5, h6, p, a {
     text-decoration: none;
 }
 
-/* Налаштування посилань: текст і час строго в один ряд */
 .leftNavButton a, .Button a, .buttonSmall a {
     display: flex;
     align-items: center;
@@ -37,7 +48,15 @@ h1, h2, h3, h4, h5, h6, p, a {
 /* ==========================================
    2. ЕФЕКТ GLASSMORPHISM (Оригінальні бекплейти)
    ========================================== */
-.leftNavButton, .Logo, .Mavis, .objectHeader, .Button, .buttonSmall, .Object, .Primary, .Secondary {
+body[data-theme="classic"] .leftNavButton,
+body[data-theme="classic"] .Logo,
+body[data-theme="classic"] .Mavis,
+body[data-theme="classic"] .objectHeader,
+body[data-theme="classic"] .Button,
+body[data-theme="classic"] .buttonSmall,
+body[data-theme="classic"] .Object,
+body[data-theme="classic"] .Primary,
+body[data-theme="classic"] .Secondary {
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 40px;
     box-shadow: 
@@ -46,11 +65,48 @@ h1, h2, h3, h4, h5, h6, p, a {
         inset 0 -2px 5px rgba(0, 0, 0, 0.1);
 }
 
-.leftNavButton, .Logo, .Mavis, .objectHeader, .Button, .buttonSmall {
-    background: rgba(0, 0, 0, 0);
+.leftNavBar, .Object, .dropdownActions {
+    border: 1px solid #808080;
+    border-radius: 40px;
+    background: #cccccc;
 }
 
-.leftNavBar, .Object, .dropdownActions {
+.leftNavButton, .Logo, .Mavis, .objectHeader, .Button, .buttonSmall, .Object, .Primary, .Secondary {
+    border: 1px solid #808080;
+}
+
+h1, h2, h3, h4, h5, h6, p {
+    color: #1c1c1e;
+}
+
+body[data-theme="simple"] .leftNavButton,
+body[data-theme="simple"]  .Logo, 
+body[data-theme="simple"] .Mavis, 
+body[data-theme="simple"] .objectHeader, 
+body[data-theme="simple"] .Button, 
+body[data-theme="simple"] .buttonSmall {
+    background: #b3b3b3;
+}
+
+.input-group {
+    border: 1px solid #808080;
+    background: #b3b3b3;
+    border-radius: 40px;
+}
+
+body[data-theme="classic"] .input-group {
+    background: unset;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 40px;
+    box-shadow: 
+        0 8px 32px rgba(31, 38, 135, 0.37),
+        inset 0 2px 2px rgba(255, 255, 255, 0.5),
+        inset 0 -2px 5px rgba(0, 0, 0, 0.1);
+}
+
+body[data-theme="classic"] .leftNavBar,
+body[data-theme="classic"] .Object,
+body[data-theme="classic"] .dropdownActions {
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 40px;
     background: rgba(255, 255, 255, 0.25);
@@ -62,10 +118,14 @@ h1, h2, h3, h4, h5, h6, p, a {
         inset 0 -2px 5px rgba(0, 0, 0, 0.1);
 }
 
-.Primary {
+body[data-theme="classic"] .Primary {
     background: rgba(255, 166, 0, 0.5);
     backdrop-filter: blur(15px);
     -webkit-backdrop-filter: blur(15px);
+}
+
+.Primary {
+    background: #ffa600!important;
 }
 
 .Secondary {
@@ -81,7 +141,10 @@ h1, h2, h3, h4, h5, h6, p, a {
     transition: transform 0.4s ease;
 }
 
-.leftNavButton:hover, .Button:hover, .buttonSmall:hover, .Logo:hover {
+body[data-theme="classic"] .leftNavButton:hover, 
+body[data-theme="classic"] .Button:hover, 
+body[data-theme="classic"] .buttonSmall:hover, 
+body[data-theme="classic"] .Logo:hover {
     transform: scale(1.05);
     box-shadow: 
         0 8px 32px rgba(31, 38, 135, 0.15),
@@ -412,7 +475,7 @@ h1, h2, h3, h4, h5, h6, p, a {
     position: absolute;
     /* ГОЛОВНІ ЗМІНИ ДЛЯ ЗМІЩЕННЯ ПРАВОРУЧ: */
     top: 50%;               /* Вирівнюємо по центру кнопки по вертикалі */
-    left: 100%;             /* Виштовхуємо меню повністю праворуч за межі кнопки */
+    left: -400%;             /* Виштовхуємо меню повністю праворуч за межі кнопки */
     margin-left: 15px;      /* Невеликий відступ від самих крапок */
     transform: translateY(-50%); /* Ідеально центруємо по вертикалі */
     background-color: rgb(183, 191, 175);
@@ -472,11 +535,16 @@ h1, h2, h3, h4, h5, h6, p, a {
 }
 
 .housePickerWindow .optionArea {
-    margin: 0 20px 0 20px;
+    margin: 0;
+    max-height: 400px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 8px;
+    scrollbar-width: none;
 }
 
 .housePickerWindow .optionArea .Button {
-    margin: 15px 0 15px 0;
+    margin: 15px 20px 15px 20px;
 }
 
  .housePickerWindow .optionArea .buttonSmall:not(.optionsButton) {
@@ -487,6 +555,14 @@ h1, h2, h3, h4, h5, h6, p, a {
     display: flex;
     justify-content: space-between;
     flex-flow: row;
+}
+
+#addRoomForm .buttonContainer, #addDeviceForm .buttonContainer {
+    width: calc(100% - 40px);
+}
+
+#addHouseButtonContainer {
+    width: 100%;
 }
 
 .addHouse {
@@ -558,36 +634,87 @@ h1, h2, h3, h4, h5, h6, p, a {
     margin: auto 15px auto;
 }
 
+#Statistics {
+    max-width: 510px;
+}
+
+#Statistics .Button {
+    display: flex;
+    justify-content: space-between;
+}
+
+#Statistics p {
+    flex-grow: 0;
+}
+
+
+
+/* --- ГЛОБАЛЬНИЙ КОНТЕЙНЕР ДЛЯ СПОВІЩЕНЬ --- */
+#mavisAlertContainer {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%); /* Центруємо рівно посередині екрана */
+    z-index: 9999; /* Завжди поверх будь-яких Canvas мап та модальних вікон */
+    display: flex;
+    flex-direction: column;
+    gap: 10px; /* Відстань між кількома сповіщеннями */
+    pointer-events: none; /* Контейнер не заважає клікати по карті під ним */
+}
+
+/* --- БАЗОВА ПЛАШКА СПОВІЩЕННЯ --- */
+.mavis-alert-box {
+    pointer-events: auto; /* Самі плашки залишаються клікабельними */
+    min-width: 280px;
+    max-width: 450px;
+    padding: 12px 24px;
+    border-radius: 8px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    text-align: center;
+    font-weight: 500;
+    
+    /* Ефект плавного виліту згори */
+    transform: translateY(-50px);
+    opacity: 0;
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease;
+}
+
+/* Стан видимого сповіщення */
+.mavis-alert-box.visible {
+    transform: translateY(0);
+    opacity: 1;
+}
+
 /* Кольори */
 .blue {
-    background-color: rgba(125, 166, 217, 0.8);
+    background-color: rgba(125, 166, 217, 0.8)!important;
 }
 
 .orange {
-    background-color: rgba(246, 150, 121, 0.8);
+    background-color: rgba(246, 150, 121, 0.8)!important;
 }
 
 .purple {
-    background-color: rgba(135, 129, 189, 0.8);
+    background-color: rgba(135, 129, 189, 0.8)!important;
 }
 
 .grey {
-    background-color: rgba(112, 112, 112, 0.8);
+    background-color: rgba(112, 112, 112, 0.8)!important;
 }
 
 .green {
-    background-color: rgba(125, 197, 118, 0.8);
+    background-color: rgba(125, 197, 118, 0.8)!important;
 }
 
 .pink {
-    background-color: rgba(244, 154, 193, 0.8);
+    background-color: rgba(244, 154, 193, 0.8)!important;
 }
 
 .red {
-    background-color: rgba(216, 107, 118, 0.8);
+    background-color: rgba(216, 107, 118, 0.8)!important;
 }
 
 .yellow {
-    background-color: rgba(202, 174, 87, 0.8);
+    background-color: rgba(202, 174, 87, 0.8)!important;
 }
 

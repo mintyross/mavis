@@ -18,11 +18,10 @@
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" href="css/main.css">
-        <link rel="stylesheet" href="css/settings.css">
         <link rel="stylesheet" href="css/mobile.css">
         <link rel="stylesheet" href="css/devicemap.css">
     </head>
-    <body>
+    <body data-theme="<%- user.siteTheme %>">
         <div class="container">
 
             <%- include('partials/navbar') %>
@@ -45,32 +44,36 @@
                 <div class="housePickerWindow Object Large" id="roomPickerWindow">
                     <div class="objectHeader"><p>Manage rooms</p></div>
                     <div class="optionArea">
-                        <% rooms.forEach(function(room) { 
-                            // Перевіряємо, чи є будинок активним у сесії
-                            const currentActiveRoomId = locals.activeRoom ? activeRoom.roomId : null;
-                            const isIdMatch = (currentActiveRoomId && currentActiveRoomId == room.roomId);
-                            const isPrimary = isIdMatch ? 'Primary' : '';
-                        %>
-                            <!-- Додаємо клас houseItemButton та data-id, що передає дані до скрипта-->
-                            <div class="Button houseItemButton <%- isPrimary %> " id="houseItemButton" style="background-color: <%- room.roomColor ? room.roomColor + '80' : '#ffa60080' %>;"
-                                data-house-id="<%- room.houseId %>"
-                                data-room-id="<%- room.roomId %>" 
-                                data-room-name="<%- room.roomName %>" 
-                                data-room-color="<%- room.roomColor || '#ffa600' %>">
-                                <p><%- room.roomName %></p>
-                                
-                                <!-- Кнопка з трьома крапками -->
-                                <div class="buttonSmall optionsButton" id="optionsButton">
-                                    <img src="/images/dots.png" alt="Options">
+                        <% if (locals.rooms && rooms.length > 0) { %>
+                            <% rooms.forEach(function(room) { 
+                                // Перевіряємо, чи є будинок активним у сесії
+                                const currentActiveRoomId = locals.activeRoom ? activeRoom.roomId : null;
+                                const isIdMatch = (currentActiveRoomId && currentActiveRoomId == room.roomId);
+                                const isPrimary = isIdMatch ? 'Primary' : '';
+                            %>
+                                <!-- Додаємо клас houseItemButton та data-id, що передає дані до скрипта-->
+                                <div class="Button houseItemButton <%- isPrimary %> " id="houseItemButton" style="background-color: <%- room.roomColor ? room.roomColor + '80' : '#ffa60080' %>;"
+                                    data-house-id="<%- room.houseId %>"
+                                    data-room-id="<%- room.roomId %>" 
+                                    data-room-name="<%- room.roomName %>" 
+                                    data-room-color="<%- room.roomColor || '#ffa600' %>">
+                                    <p><%- room.roomName %></p>
                                     
-                                    <!-- Випадаюче меню дій (приховане за замовчуванням) -->
-                                    <div class="dropdownActions">
-                                        <div class="dropdownItem roomEditButton"><p>Edit</p></div>
-                                        <div class="dropdownItem removeRoomButton"><p>Remove</p></div>
+                                    <!-- Кнопка з трьома крапками -->
+                                    <div class="buttonSmall optionsButton" id="optionsButton">
+                                        <img src="/images/dots.png" alt="Options">
+                                        
+                                        <!-- Випадаюче меню дій (приховане за замовчуванням) -->
+                                        <div class="dropdownActions">
+                                            <div class="dropdownItem roomEditButton"><p>Edit</p></div>
+                                            <div class="dropdownItem removeRoomButton"><p>Remove</p></div>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        <% }) %>
+                            <% }) %>
+                        <% } else { %>
+                            <p style="text-align:center; padding: 20px; opacity:0.6;">No rooms linked to this house yet.</p>
+                        <% } %>
 
                         <div class="buttonContainer">
                             <div class="buttonSmall" id="roomPickerAdd"><p>Add rooms</p></div>
@@ -98,7 +101,7 @@
 
                         <div class="buttonContainer bc-fix">
                             <div class="buttonSmall Secondary" id="roomAddWindowCancelButton"><p>Cancel</p></div>
-                            <button type="submit" class="buttonSmall Primary" id="houseAddWindowAddButton"><p>Add</p></button>
+                            <button type="submit" class="buttonSmall green" id="houseAddWindowAddButton"><p>Add</p></button>
                         </div>
                     </form>
                 </div> 
@@ -113,19 +116,17 @@
 
                         <div class="input-group">
                             <label for="editRoomName">Room Name</label>
-                            <!-- ВИПРАВЛЕНО: Змінено id на унікальний editRoomName та додано name="roomName" -->
                             <input type="text" id="editRoomName" name="roomName" placeholder="Living room" required>
                         </div>
                         
                         <div class="input-group">
                             <label for="editRoomColor">Select room color:</label>
-                            <!-- ВИПРАВЛЕНО: Змінено id на унікальний editRoomColor та додано name="roomColor" -->
                             <input type="color" id="editRoomColor" name="roomColor" value="#ffa600">
                         </div>
 
                         <div class="buttonContainer bc-fix">
                             <div class="buttonSmall Secondary" id="roomEditWindowCancelButton"><p>Cancel</p></div>
-                            <button type="submit" class="buttonSmall Primary" id="roomEditWindowEditButton"><p>Edit</p></button>
+                            <button type="submit" class="buttonSmall green" id="roomEditWindowEditButton"><p>Edit</p></button>
                         </div>
                     </form>
                 </div>
@@ -181,7 +182,7 @@
 
                         <div class="buttonContainer bc-fix">
                             <div class="buttonSmall Secondary" id="deviceAddWindowCancelButton"><p>Cancel</p></div>
-                            <button type="submit" class="buttonSmall Primary" id="deviceAddSubmitButton"><p>Add</p></button>
+                            <button type="submit" class="buttonSmall green" id="deviceAddSubmitButton"><p>Add</p></button>
                         </div>
                     </form>
                 </div>

@@ -19,7 +19,7 @@
         <link rel="stylesheet" href="css/main.css">
         <link rel="stylesheet" href="css/mobile.css">
     </head>
-    <body>
+    <body data-theme="<%- user.siteTheme %>">
         <div class="container">
 
             <%- include('partials/navbar') %>
@@ -33,34 +33,34 @@
                             <p>Notifications</p>
                         </div>
                         <div class="objectOptions">
-                            <a href=""><div class="Button Primary"><p>User Natalia has gained access to the kitchen room</p><div class="Time">22:08</div></div></a>
-                            <a href=""><div class="Button"><p>User Natalia has gained access to the kitchen room</p><div class="Time">22:08</div></div></a>
+                            <a href="/settings"><div class="Button Primary"><p>User Natalia has gained access to the kitchen room</p><div class="Time">22:08</div></div></a>
+                            <a href="/settings"><div class="Button"><p>User Natalia has gained access to the kitchen room</p><div class="Time">22:08</div></div></a>
                         </div>
                     </div>
 
-                    <div class="Object Medium">
+                    <div class="Object Medium"  data-context="pattern">
                         <div class="objectHeader">
                             <img src="images/copy.png" alt="Notification">
                             <p>Patterns</p>
                         </div>
                         <div class="objectOptions">
-                            <a href=""><div class="buttonSmall orange"><p>Comfort</p></div></a>
-                            <a href=""><div class="buttonSmall blue"><p>Work</p></div></a>
-                            <a href=""><div class="buttonSmall purple"><p>Party</p></div></a>
-                            <a href=""><div class="buttonSmall grey"><p>Away</p></div></a>
+                            <a href=""><div class="buttonSmall alert orange"><p>Comfort</p></div></a>
+                            <a href=""><div class="buttonSmall alert blue"><p>Work</p></div></a>
+                            <a href=""><div class="buttonSmall alert purple"><p>Party</p></div></a>
+                            <a href=""><div class="buttonSmall alert grey"><p>Away</p></div></a>
                         </div>
                     </div>
 
-                    <div class="Object Medium">
+                    <div class="Object Medium"  data-context="mood">
                         <div class="objectHeader">
                             <img src="images/thoughts.png" alt="Notification">
                             <p>Mood</p>
                         </div>
                         <div class="objectOptions">
-                            <a href=""><div class="buttonSmall green"><p>Funky</p></div></a>
-                            <a href=""><div class="buttonSmall blue"><p>Serious</p></div></a>
-                            <a href=""><div class="buttonSmall purple"><p>Sad</p></div></a>
-                            <a href=""><div class="buttonSmall pink"><p>Romantic</p></div></a>
+                            <a href=""><div class="buttonSmall alert green"><p>Funky</p></div></a>
+                            <a href=""><div class="buttonSmall alert blue"><p>Serious</p></div></a>
+                            <a href=""><div class="buttonSmall alert purple"><p>Sad</p></div></a>
+                            <a href=""><div class="buttonSmall alert pink"><p>Romantic</p></div></a>
                         </div>
                     </div>
                 </div>
@@ -68,42 +68,42 @@
                 <div class="gridColumn">
                     <div class="Object Large">
                         <div class="objectOptions">
-                            <a href="">
+                            <a href="/statistics">
                                 <div class="Button Square yellow">
                                     <h1>Electricity</h1>
                                     <div class="objectOptions">
                                         <img src="images/power.png" alt="power">
-                                        <p>3kW</p>
+                                        <p><%- (locals.usage && locals.usage.electricity !== undefined) ? usage.electricity : 0 %> kW</p>
                                     </div>
                                 </div>
                             </a>
 
-                            <a href="">
+                            <a href="/statistics">
                                 <div class="Button Square green">
                                     <h1>Internet traffic</h1>
                                     <div class="objectOptions">
                                         <img src="images/internet.png" alt="internet">
-                                        <p>125.6Gb</p>
+                                        <p><%- (locals.usage && locals.usage.internet !== undefined) ? usage.internet : 0 %> Gb</p>
                                     </div>
                                 </div>
                             </a>
 
-                            <a href="">
+                            <a href="/statistics">
                                 <div class="Button Square blue">
                                     <h1>Water</h1>
                                     <div class="objectOptions">
                                         <img src="images/drop.png" alt="water">
-                                        <p>3m³</p>
+                                       <p><%- (locals.usage && locals.usage.water !== undefined) ? usage.water : 0 %> m³</p>
                                     </div>
                                 </div>
                             </a>
 
-                            <a href="">
+                            <a href="/statistics">
                                 <div class="Button Square red">
                                     <h1>Heating</h1>
                                     <div class="objectOptions">
                                         <img src="images/gas.png" alt="heating">
-                                        <p>15m³</p>
+                                        <p><%- (locals.usage && locals.usage.gas !== undefined) ? usage.gas : 0 %> m³</p>
                                     </div>
                                 </div>
                             </a>
@@ -114,28 +114,29 @@
 
                     <div class="Object Small">
                         <div class="objectHeader">
-                            <img src="images/notification.png" alt="Notification">
-                            <p>G</p>
+                            <img src="images/smart-home.png" alt="garage doors">
+                            <p>Garage doors</p>
                         </div>
                         <div class="objectOptions">
-                            <a href=""><div class="buttonSmall Primary"><p>User Natalia has gained access to the kitchen room</p><div class="Time">22:08</div></div></a>
-                            <a href=""><div class="buttonSmall Primary"><p>User Natalia has gained access to the kitchen room</p><div class="Time">22:08</div></div></a>
+                            <div class="buttonSmall alert Secondary" data-context="garageDoorsOpen"><p>Open</p></div>
+                            <div class="buttonSmall alert Primary" data-context="garageDoorsClose"><p>Close</p></div>
                         </div>
                     </div>
                     
 
                     <div class="Object Small">
                         <div class="objectHeader">
-                            <img src="images/notification.png" alt="Notification">
-                            <p>Notifications</p>
+                            <img src="images/toilet.png" alt="toilet">
+                            <p>Toilet</p>
                         </div>
                         <div class="objectOptions">
-                            <a href=""><div class="buttonSmall Primary"><p>User Natalia has gained access to the kitchen room</p><div class="Time">22:08</div></div></a>
-                            <a href=""><div class="buttonSmall Primary"><p>User Natalia has gained access to the kitchen room</p><div class="Time">22:08</div></div></a>
+                            <div class="buttonSmall alert Primary" data-context="flush"><p>Flush</p></div>
+                            <div class="buttonSmall alert Secondary" data-context="unflush"><p>Unflush</p></div>
                         </div>
                     </div>
                 </div>
             </div> 
         </div>
     </body>
+    <script src="/js/index.js"></script>
 </html>

@@ -1,8 +1,15 @@
+/* 
+    Скрипт містить логіку роботи елементу canvas сторінки /devicemap.
+
+    Створює поле, на якому можна взаємодіяти з девайсами: 
+    змінювати їхнє місцеположення відносно елементу та створювати зв'язки між девайсами.
+*/
+
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 
-// --- 1. ОГОЛОШЕННЯ ГЛОБАЛЬНИХ КОНСТАНТ ТА СТАНІВ ---
-const NODE_RADIUS = 25; // ВИПРАВЛЕНО: Додано відсутній радіус вузла
+// Оголошення констант, змінних та станів
+const NODE_RADIUS = 25;
 
 // Ініціалізуємо робочі масиви даними, які EJS передав у глобальний scope
 let devices = typeof serverDevices !== 'undefined' ? [...serverDevices] : [];
@@ -19,25 +26,26 @@ function resizeCanvas() {
 }
 resizeCanvas();
 
+/* Створюємо лісенер зміни розміру елементу */
 window.addEventListener("resize", () => {
     resizeCanvas();
 });
 
-// --- 2. ГОЛОВНИЙ ЦИКЛ МАЛЮВАННЯ (RENDER LOOP) ---
+// Головний цикл малювання Render Loop
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Додаємо красиве скруглене тло кольору antiquewhite з прозорістю всередині canvas
+    // Скруглене тло з прозорістю всередині canvas
     ctx.fillStyle = "rgba(250, 235, 215, 0.25)"; 
     ctx.beginPath();
     ctx.roundRect(0, 0, canvas.width, canvas.height, 40); 
     ctx.fill();
 
-    // А. Малюємо лінії зв'язків між пристроями
+    // Малюємо лінії зв'язків між пристроями
     ctx.lineWidth = 3;
 
     connections.forEach(conn => {
-        // Гарантуємо точну відповідність назв полів із таблицею connections вашої БД
+        // Гарантуємо точну відповідність назв полів із таблицею connections бази даних
         const src = devices.find(d => d.deviceId === conn.deviceFromId);
         const tgt = devices.find(d => d.deviceId === conn.deviceToId);
         
@@ -48,7 +56,7 @@ function draw() {
 
             // Динамічний колір та пунктир лінії залежно від схеми usageScheme
             if (src.usageScheme === 'sensor') {
-                ctx.strokeStyle = "rgba(0, 255, 166, 0.8)"; // Неоново-зелений для сенсорів
+                ctx.strokeStyle = "rgba(0, 255, 166, 0.8)"; // Зелений для сенсорів
                 ctx.setLineDash([4, 4]); 
             } else if (src.usageScheme === 'dimmer') {
                 ctx.strokeStyle = "rgba(255, 0, 200, 0.8)";  // Маджента для димерів
@@ -62,7 +70,7 @@ function draw() {
         }
     });
 
-    // Б. Малюємо тимчасову лінію в момент перетягування (Shift + Drag)
+    // Малюємо тимчасову лінію в момент перетягування
     if (linkingSourceDevice) {
         ctx.lineWidth = 2;
         ctx.strokeStyle = "#ffa600"; // Помаранчева лінія створення зв'язку
@@ -75,14 +83,14 @@ function draw() {
 
     ctx.setLineDash([]); // Скидаємо пунктир перед малюванням кіл пристроїв
 
-    // В. Малюємо самі пристрої (Вузли)
+    // Малюємо самі пристрої (Вузли)
     devices.forEach(device => {
         // Зовнішнє коло корпусу девайса
         ctx.beginPath();
         ctx.arc(device.canvasX, device.canvasY, NODE_RADIUS, 0, Math.PI * 2);
         ctx.fillStyle = linkingSourceDevice === device ? "#ffa600" : "#2c2c2c";
          if (device.usageScheme === 'sensor') {
-                ctx.strokeStyle = "rgba(0, 255, 166, 0.8)"; // Неоново-зелений для сенсорів
+                ctx.strokeStyle = "rgba(0, 255, 166, 0.8)"; // Зелений для сенсорів
                 ctx.setLineDash([]); 
             } else if (device.usageScheme === 'dimmer') {
                 ctx.strokeStyle = "rgba(255, 0, 200, 0.8)";  // Маджента для димерів
@@ -105,7 +113,7 @@ function draw() {
     requestAnimationFrame(draw);
 }
 
-// --- 3. ОБРОБКА ІНТЕРАКТИВУ (MOUSE EVENTS) ---
+// Обробка інтеракції з елементом (Mouse events)
 
 function getDeviceAtPosition(x, y) {
     return devices.find(d => {
@@ -114,9 +122,6 @@ function getDeviceAtPosition(x, y) {
     });
 }
 
-// --- ОБНОВЛЕНИЙ ІНТЕРАКТИВНИЙ ДВИГУН (ДЛЯ ПК ТА МОБІЛЬНИХ) ---
-// --- КОРЕКТНИЙ ІНТЕРАКТИВНИЙ ДВИГУН З ФІКСАЦІЄЮ СТАРТОВИХ КООРДИНАТ ---
-
 let lastClickTime = 0; 
 const DBL_CLICK_DELAY = 300; 
 
@@ -124,6 +129,10 @@ const DBL_CLICK_DELAY = 300;
 let startX = 0;
 let startY = 0;
 
+/* 
+    Дії при натиску на кнопку миші 
+    Якщо даблклік - входимо у режим connections
+*/
 canvas.addEventListener("mousedown", (e) => {
     const rect = canvas.getBoundingClientRect();
     const x = e.clientX - rect.left;
@@ -152,7 +161,7 @@ canvas.addEventListener("mousedown", (e) => {
         if (linkingSourceDevice !== clickedDevice) {
             draggedDevice = clickedDevice;
             
-            // КРИТИЧНО ДЛЯ БАЗИ ДАНИХ: Запам'ятовуємо ТОЧНУ стартову позицію елемента перед рухом
+            // Запам'ятовуємо стартову позицію елемента перед рухом
             startX = clickedDevice.canvasX;
             startY = clickedDevice.canvasY;
         }
@@ -164,6 +173,7 @@ canvas.addEventListener("mousedown", (e) => {
     }
 });
 
+/* Перетягування елементів */
 canvas.addEventListener("mousemove", (e) => {
     const rect = canvas.getBoundingClientRect();
     mousePos.x = e.clientX - rect.left;
@@ -181,10 +191,9 @@ canvas.addEventListener("mouseup", (e) => {
     const y = e.clientY - rect.top;
 
     if (draggedDevice) {
-        // ВИПРАВЛЕНО: Порівнюємо поточну позицію миші зі СТАРТОВИМИ координатами (startX, startY)
         const distMoved = Math.hypot(startX - x, startY - y);
         
-        console.log(`[Canvas DEBUG] Distance moved: ${distMoved}px`);
+        /* console.log(`[Canvas DEBUG] Distance moved: ${distMoved}px`); */
 
         if (distMoved > 5) {
             console.log(`[Canvas AJAX] Saving new coordinates for device ${draggedDevice.deviceId}: X=${draggedDevice.canvasX}, Y=${draggedDevice.canvasY}`);
@@ -194,25 +203,7 @@ canvas.addEventListener("mouseup", (e) => {
     }
 });
 
-
-/* 
-canvas.addEventListener("mouseup", (e) => {
-    if (draggedDevice) {
-        saveDeviceCoordinates(draggedDevice);
-        draggedDevice = null;
-    }
-
-    if (linkingSourceDevice) {
-        const targetDevice = getDeviceAtPosition(mousePos.x, mousePos.y);
-
-        if (targetDevice && targetDevice !== linkingSourceDevice) {
-            createNewConnection(linkingSourceDevice.deviceId, targetDevice.deviceId);
-        }
-        linkingSourceDevice = null;
-    }
-}); */
-
-// --- 4. СИНХРОНІЗАЦІЯ З СЕРВЕРОМ (AJAX) ---
+// Передача даних на сервер за допомогою AJAX
 
 function saveDeviceCoordinates(device) {
     $.post("/updateDeviceCoords", {
@@ -223,10 +214,10 @@ function saveDeviceCoordinates(device) {
 }
 
 function createNewConnection(sourceId, targetId) {
-    // 1. Оновлюємо локальний масив
+    // Оновлюємо локальний масив
     connections.push({ deviceFromId: sourceId, deviceToId: targetId });
 
-    // 2. Відправляємо надійний AJAX запит із точними назвами ключів
+    // Відправляємо AJAX запит із назвами ключів
     $.ajax({
         type: "POST",
         url: "/connectDevices",
@@ -242,5 +233,5 @@ function createNewConnection(sourceId, targetId) {
 }
 
 
-// Запуск рендер-циклу полотна
+// Рендер елемента
 draw();

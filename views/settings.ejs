@@ -14,17 +14,55 @@
         <link rel="stylesheet" href="css/settings.css">
         <link rel="stylesheet" href="css/mobile.css">
     </head>
-    <body>
+    <body data-theme="<%- user.siteTheme %>">
         <div class="container">
 
             <%- include('partials/navbar') %>
 
             <div class="objectArea">
 
-                <div class="gridColumn Object Plate">
-                    <div class="Button"></div>
+                <div class="Object Login">
+                <div class="objectHeader">
+                    <h1>Settings</h1>
+                </div>
+                <div class="input-group">
+                    <p>Theme:</p>
+                    <div class="buttonSmall settingsGroup" id="changeTheme" ><p><%- user.siteTheme %></p></div>
+                </div>
+                <div class="input-group">
+                    <p>Background:</p>
+                    <div class="buttonSmall settingsGroup" id="defaultBackground"><p>to default</p></div>
+                    <p>Pick from storage:</p>
+                    <div class="buttonSmall settingsGroup" id="changeBackground">
+                        <input type="file" id="background" name="background" accept="image/*">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <p>Logs</p>
+                    <div class="buttonSmall settingsGroup" id="showLogs"><p>show</p></div>
                 </div>
             </div> 
         </div>
+
+        <div class="windowArea" style="display: none;">
+            <div class="Login housePickerWindow addHouse Object Large" id="logMonitor" style="margin: 10% auto; display: none">
+                <div class="objectHeader"><p>System Error & Operation Logs</p></div>
+                <div class="optionArea" style="max-height: 400px; overflow-y: auto; font-family: monospace;">
+                    <% logs.forEach(function(log) { %>
+                        <div class="Button logRow" style="text-align: left; padding: 5px 10px; margin-bottom: 4px;">
+                            <span style="color: #666;">[<%= log.created_at %>]</span>
+                            <span style="font-weight: bold; color: <%= log.logMessage.includes('ERROR') ? '#ff4d4d' : '#000' %>;">
+                                <%= log.logMessage %>
+                            </span>
+                        </div>
+                    <% }); %>
+                </div>
+                <div class="buttonContainer">
+                    <div class="buttonSmall Primary" id="logsWindowClose"><p>Close</p></div>
+                </div>
+            </div>
+        </div>
+        
+        <script src="/js/settings.js"></script>
     </body>
 </html>

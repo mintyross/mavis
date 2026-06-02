@@ -7,13 +7,13 @@ $(document).ready(function() {
     $("#housePicker").click(function(e) {
         e.preventDefault();
         // Плавна поява за 400 мілісекунд
-        $(".windowArea").fadeIn(200); 
+        $("#housePickerWindowArea").fadeIn(200); 
     });
 
     $("#housePickerOKButton").click(function(e) {
         e.preventDefault();
         // Плавне зникнення
-        $(".windowArea").fadeOut(200);
+        $("#housePickerWindowArea").fadeOut(200);
     });
 
     $(".Account").click(function(e) {
@@ -24,7 +24,7 @@ $(document).ready(function() {
 
     $("#housePicker").click(function(e) {
         e.preventDefault();
-        $(".windowArea").css("display", "flex");
+        $("#housePickerWindowArea").css("display", "flex");
     });
 
     $("#housePickerAdd").click(function(e) {
@@ -57,8 +57,8 @@ $(document).ready(function() {
         const houseId = $selectedHouse.attr("data-id");
 
         if (!houseId) {
-            console.error("Помилка: У вибраного будинку відсутній атрибут data-id");
-            alert("Помилка клієнта: Не вдалося зчитати ID будинку.");
+            console.error("ERROR: the chosen house's data-id attribute is missing.");
+            alert("CLIENT ERROR: could not read the house ID.");
             return;
         }
 
@@ -68,17 +68,17 @@ $(document).ready(function() {
             url: "/houseSelect",
             data: { houseId: houseId },
             success: function(response) {
-                console.log("Будинок остаточно активовано на сервері:", houseId);
+                console.log("House activated:", houseId);
                 
                 // Закриваємо модальне вікно
                 $("#housePickerWindow").css("display", "none");
-                $(".windowArea").css("display", "none");
+                $("#housePickerWindowArea").css("display", "none");
                 
                 // ПЕРЕЗАВАНТАЖУЄМО сторінку, щоб оновити шапку сайту
                 window.location.reload(); 
             },
             error: function(xhr) {
-                alert("Помилка збереження вибору: " + xhr.responseText);
+                alert("ERROR saving the choice: " + xhr.responseText);
             }
         });
     });
