@@ -1,3 +1,10 @@
+/* 
+    Містить логіку роботи кнопок головного меню. 
+    Також містить скрипт зчитування даних елементів, як текст та колір,
+    що створює alert-елемент у верху екрана з відповідними даними.
+ */
+
+/* Функція створення alert-елементів */
 function showMavisNotification(text, type = 'info', duration = 4000) {
     let container = document.getElementById('mavisAlertContainer');
     if (!container) {
@@ -7,7 +14,7 @@ function showMavisNotification(text, type = 'info', duration = 4000) {
     }
 
     const alertBox = document.createElement('div');
-    // Змінна 'type' передасть чистий клас кольору (наприклад: mavis-alert-box orange)
+    // Змінна 'type' передасть чистий клас кольору
     alertBox.className = `mavis-alert-box ${type}`;
     
     const textNode = document.createElement('p');
@@ -24,18 +31,19 @@ function showMavisNotification(text, type = 'info', duration = 4000) {
     }, duration);
 }
 
-
+/* Логіка роботи кнопок */
 $(document).ready(function() {
     $(".buttonSmall.alert").on("click", function(e) {
-        e.preventDefault(); // Stop empty <a href=""> page refreshes
+        e.preventDefault();
 
+        /* Отримуємо кнопку та її текст у тезі <p> */
         const $btn = $(this);
         const rawText = $btn.find("p").text().trim();
 
-        // 1. АВТОМАТИЧНА ПЕРЕВІРКА БАТЬКІВСЬКОГО КОНТЕКСТУ
         // Шукаємо найближчий вгору контейнер із атрибутом data-context
         const context = $btn.closest("[data-context]").attr("data-context");
 
+        /* Підлаштовуємо контекст alert-елементу під кнопку */
         let notificationText = "";
         if (context === "pattern") {
             notificationText = `Pattern changed to ${rawText}`;
@@ -54,13 +62,13 @@ $(document).ready(function() {
             notificationText = `Mode changed to ${rawText}`;
         }
 
-        // 2. ЗЧИТУВАННЯ КОЛЬОРУ З КЛАСУ ДЛЯ ВАШОЇ CSS ПАЛІТРИ
+        /* Зчитування кольору з останнього класу */
         const classString = $btn.attr("class") || "";
         const classes = classString.split(" ");
-        // Беремо останній клас елемента (наприклад: orange, blue, purple, green)
+        // Беремо останній клас елемента
         const colorType = classes.length > 1 ? classes[classes.length - 1] : 'info';
 
-        // 3. ТРИГЕР СПОВІЩЕННЯ
+        /* Тригер сповіщення */
         showMavisNotification(notificationText, colorType, 4000);
     });
 });

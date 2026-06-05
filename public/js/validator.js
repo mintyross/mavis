@@ -2,19 +2,15 @@
     Скрипт для валідації даних сторінок /login та /register 
 */
 document.addEventListener('DOMContentLoaded', () => {
-    // Підтримка пошуку форми як за класом батьківського елемента, так і за ID
-    const form = document.querySelector('.Login form') || document.getElementById('loginForm');
+    const form = document.querySelector('.Login form') || document.getElementById('loginForm') || document.getElementById('signupForm');
     if (!form) return;
 
     form.addEventListener('submit', (event) => {
         removeErrors();
         let isValid = true;
 
-        // Поля, які є в обох формах
-        const emailInput = document.getElementById('email') || document.getElementById('userName');
+        const emailInput = document.getElementById('email');
         const passwordInput = document.getElementById('password');
-        
-        // Поля, які є лише у формі реєстрації
         const usernameInput = document.getElementById('userName');
         const passwordConfirmInput = document.getElementById('passwordConfirm');
         const avatarInput = document.getElementById('avatar');
@@ -24,12 +20,18 @@ document.addEventListener('DOMContentLoaded', () => {
         if (emailInput) {
             const inputValue = emailInput.value.trim();
             if (!inputValue) {
-                // Динамічний текст залежно від типу поля (Логін чи Реєстрація)
-                const errorMsg = emailInput.id === 'userName' ? 'Username or Email is required' : 'Email address is required';
-                showError(emailInput, errorMsg);
+                showError(emailInput, 'Email is required');
                 isValid = false;
-            } else if (emailInput.id === 'email' && !emailRegex.test(inputValue)) {
+            } else if (!emailRegex.test(inputValue)) {
                 showError(emailInput, 'Please enter a valid email address');
+                isValid = false;
+            }
+        }
+
+        if (usernameInput) {
+            const inputValue = usernameInput.value.trim();
+            if (!inputValue) {
+                showError(usernameInput, 'User name is required');
                 isValid = false;
             }
         }
@@ -56,31 +58,30 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // Валідація Аватара, якщо він обраний
+        // Валідація Аватара
         if (avatarInput && avatarInput.files.length > 0) {
             const file = avatarInput.files[0];
             const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
             const allowedExtensions = /(\.jpg|\.jpeg|\.png|\.webp|\.gif)$/i;
             
-            // Перевірка типу за MIME-типом або за розширенням імені файлу
             if (!allowedTypes.includes(file.type) && !allowedExtensions.test(file.name)) {
                 showError(avatarInput, 'Only images are allowed (JPEG, PNG, WEBP, GIF)');
                 isValid = false;
             }
         }
 
-        // Якщо є помилки — зупиняємо відправку форми на сервер
+        // ЯКЩО ФОРМА НЕВАЛІДНА:
         if (!isValid) {
             event.preventDefault();
+            // Зупиняє виконання всіх наступних обробників (включаючи fetch у register.js)
+            event.stopImmediatePropagation(); 
         }
     });
 
-    // Функція відображення помилки
     function showError(inputElement, message) {
         inputElement.style.borderColor = '#ff4d4d';
         inputElement.style.boxShadow = '0 0 5px rgba(255, 77, 77, 0.5)';
         
-        // Створюємо об'єкт, для відображення тексту помилки
         const errorText = document.createElement('span'); 
         errorText.className = 'error-message';
         errorText.innerText = message;
@@ -90,12 +91,10 @@ document.addEventListener('DOMContentLoaded', () => {
         errorText.style.gridColumn = '1 / -1';
         errorText.style.margin = '5px 0 5px 25px';
 
-        // Вставляємо помилку одразу після контейнера .input-group
         const container = inputElement.closest('.input-group') || inputElement;
         container.after(errorText);
     }
 
-    // Очищення стилів та текстів помилок
     function removeErrors() {
         document.querySelectorAll('.error-message').forEach(error => error.remove());
         document.querySelectorAll('.Login input, form input').forEach(input => {
@@ -104,3 +103,4 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+    

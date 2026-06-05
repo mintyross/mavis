@@ -5,6 +5,7 @@
     змінювати їхнє місцеположення відносно елементу та створювати зв'язки між девайсами.
 */
 
+/* Отримуємо елемент та налаштовуємо canvas */
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 
@@ -45,7 +46,6 @@ function draw() {
     ctx.lineWidth = 3;
 
     connections.forEach(conn => {
-        // Гарантуємо точну відповідність назв полів із таблицею connections бази даних
         const src = devices.find(d => d.deviceId === conn.deviceFromId);
         const tgt = devices.find(d => d.deviceId === conn.deviceToId);
         

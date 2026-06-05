@@ -22,7 +22,7 @@
         
         <!-- Дропдаун, який початково прихований -->
         <div style="display: none;" id="accountDropdown">
-            <a href="/accountData"><div class="Button"><p>change profile data</p></div></a>
+            <a href="/accountData"><div class="Button"><p>Change Profile Data</p></div></a>
             <div class="Button red" id="logoutButton"><p>Log out</p></div>
             <!-- Кнопка закриття (лінія/хрестик) -->
             <a id="accountDropdownClose" style="height: max-content;"><div class="textDevider"></div></a>
@@ -106,12 +106,15 @@
                         <p><%- house.houseName %> at <%- house.houseLocation %></p>
                         
                         <!-- Кнопка з трьома крапками -->
-                        <div class="buttonSmall optionsButton" id="optionsButton">
+                        <div class="buttonSmall optionsButton">
                             <img src="/images/dots.png" alt="Options">
                             
                             <!-- Випадаюче меню дій (приховане за замовчуванням) -->
                             <div class="dropdownActions">
-                                <div class="dropdownItem houseEditButton" id=""><p>Edit</p></div>
+                                <div class="dropdownItem houseEditButton" 
+                                data-id="<%- house.houseId %>" 
+                                data-name="<%- house.houseName %>" 
+                                data-location="<%- house.houseLocation %>"><p>Edit</p></div>
                                 <div class="dropdownItem removeHouseButton"><p>Remove</p></div>
                             </div>
                         </div>
@@ -122,7 +125,7 @@
             <% } %>
 
             <div class="buttonContainer" id="addHouseButtonContainer">
-                <div class="buttonSmall" id="housePickerAdd"><p>Add houses</p></div>
+                <div class="buttonSmall" id="housePickerAdd"><p>Add a house</p></div>
                 <div class="buttonSmall Primary" id="housePickerOKButton" style="backdrop-filter: unset;"><p>Close</p></div>
             </div>
         </div>
@@ -159,7 +162,7 @@
     <div class="Login housePickerWindow addHouse Object Large" id="houseEditWindow" style="margin: 10% auto; display: none">
         <div class="objectHeader"><p>Edit the house</p></div>
 
-        <form id="addHouseForm" action="/editHouseForm" method="post" novalidate>
+        <form id="editHouseForm" action="/editHouseForm" method="post" novalidate>
             <input type="hidden" id="editHouseIdInput" name="houseId" value="">
             <div class="input-group">
                 <label for="houseName">House Name</label>
@@ -176,8 +179,6 @@
                 <button type="submit" class="buttonSmall green" id="houseEditWindowEditButton"><p>Edit</p></button>
             </div>
         </form>
-
-
     </div> 
 </div>
 

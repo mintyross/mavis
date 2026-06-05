@@ -1,12 +1,12 @@
 /* 
-    Логіка роботи partials/navbar.ejs
+    Логіка роботи /partials/navbar.ejs
     Цей скрипт містить логіку роботи кнопок, меню та форм.
 */
 $(document).ready(function() {
     /* Логіка роботи кнопок */
     $("#housePicker").click(function(e) {
         e.preventDefault();
-        // Плавна поява за 400 мілісекунд
+        // Плавна поява
         $("#housePickerWindowArea").fadeIn(200); 
     });
 
@@ -18,7 +18,7 @@ $(document).ready(function() {
 
     $(".Account").click(function(e) {
         e.preventDefault();
-        // Плавна поява за 400 мілісекунд
+        // Плавна поява
         $("#accountDropdown").fadeIn(450); 
     });
 
@@ -38,6 +38,8 @@ $(document).ready(function() {
         $("#housePickerWindow").css("display", "flex");
         $("#houseAddWindow").css("display", "none");
     });
+
+
     
     // Логіка роботи форм: валідація та надсилання даних на сервер.
     /* ФОРМА ВИБОРУ БУДИНКУ */
@@ -102,14 +104,14 @@ $(document).ready(function() {
         return true; 
     });
 
-    // 3. ЗАКРИТТЯ: Клік на кнопку закриття
+    // Клік на кнопку закриття
     $("#accountDropdownClose").click(function(e) {
         e.preventDefault();
         e.stopPropagation();
         $("#accountDropdown").fadeOut(200); 
     });
 
-    // 4. ЗАКРИТТЯ ПО КЛІКУ ПОВЗ МЕНЮ: Клік у будь-якій іншій точці екрана
+    // Клік у будь-якій іншій точці екрана закриває меню
     $(document).click(function(e) {
         if (!$(e.target).closest('.Account').length) {
             $("#accountDropdown").fadeOut(200);
@@ -173,14 +175,14 @@ $(document).ready(function() {
             },
             error: function(xhr) {
                 // Виводимо помилку
-                const errorMsg = xhr.responseJSON ? xhr.responseJSON.message : "Помилка сервера";
+                const errorMsg = xhr.responseJSON ? xhr.responseJSON.message : "SERVER ERROR";
                 alert(errorMsg);
             }
         });
     });
 
 
-    // 1. КЛІК ПО КАРТЦІ БУДИНКУ (Тільки візуальний вибір)
+    // КЛІК ПО КАРТЦІ БУДИНКУ (Тільки візуальний вибір)
     $(document).on("click", ".houseItemButton", function(e) {
         // Якщо клікнули на три крапки або пункти меню дій — ігноруємо
         if ($(e.target).closest('.optionsButton').length) return;
@@ -213,22 +215,28 @@ $(document).ready(function() {
     });
 
 
-    // КЛІК НА КНОПКУ EDIT (Редагувати)
+    // КЛІК НА КНОПКУ EDIT
     $(document).on("click", ".houseEditButton", function(e) {
         e.stopPropagation();
 
-        const $houseRow = $(this).closest(".houseItemButton"); 
+        const $editBtn = $(this);
         
-        const houseId = $houseRow.attr("data-id"); 
+        const houseId = $editBtn.data("id"); 
+        const houseName = $editBtn.data("name"); 
+        const houseLocation = $editBtn.data("location"); 
 
-        $(".optionsButton").removeClass("active"); // ховаємо меню
+        $(".optionsButton").removeClass("active");
 
-        
-        console.log("Editing house:", houseId);
+        // Наповнюємо інпути перед показом модального вікна
+        $("#editHouseIdInput").val(houseId);
+        $("#editHouseNameInput").val(houseName);
+        $("#editHouseLocationInput").val(houseLocation);
 
+        // Відображаємо вікно редагування
         $("#houseEditWindow").css("display", "flex");
         $("#housePickerWindow").css("display", "none");
     });
+
 
     // КЛІК НА КНОПКУ Cancel (Назад)
     $(document).on("click", "#houseEditWindowCancelButton", function(e) {
@@ -264,6 +272,7 @@ $(document).ready(function() {
                     $houseRow.fadeOut(300, function() { 
                         $(this).remove(); 
                     });
+                    window.location.reload();
                 },
                 error: function(xhr) {
                     alert("Could not delete: " + xhr.responseText);
@@ -272,34 +281,59 @@ $(document).ready(function() {
         }
     });
 
-    /* Форма редагування будинку */
-    $("#editHouseForm").submit(function(e) {
-        e.preventDefault();
+    $("#editHouseForm").on("submit", function(e) {
+        e.preventDefault(); 
+        if (typeof removeErrors === "function") removeErrors();
+        let isValid = true;
+
+        // 1. Extract and clean values straight from the inputs
+        const payload = {
+            houseId: $("#editHouseIdInput").val(),
+            houseName: $("#editHouseNameInput").val().trim(),
+            houseLocation: $("#editHouseLocationInput").val().trim()
+        };
+
+        // Grab the actual element nodes to feed your showError style triggers
+        const houseNameInput = document.getElementById('editHouseNameInput');
+        const houseLocationInput = document.getElementById('editHouseLocationInput');
+
+        // 2. FIXED: Evaluate the string data stored inside your payload object
+        if (!payload.houseName) {
+            if (typeof showError === "function") showError(houseNameInput, 'This field must not be blank');
+            isValid = false;
+        }
+
+        if (!payload.houseLocation) {
+            if (typeof showError === "function") showError(houseLocationInput, 'This field must not be blank');
+            isValid = false;
+        }
+
+        // 3. Halt script execution immediately if any check failed
+        if (!isValid) {
+            return; 
+        }
 
         $.ajax({
             type: "POST",
             url: "/editHouseForm",
-            data: {
-                houseId: $("#editHouseIdInput").val(), // приховане поле з ID
-                houseName: $("#editHouseNameInput").val(),
-                houseLocation: $("#editHouseLocationInput").val()
-            },
+            contentType: "application/json; charset=UTF-8", 
+            dataType: "json",
+            data: JSON.stringify(payload), 
             success: function(response) {
-                /* alert("House information was successfully edited"); */
-                window.location.reload(); // оновлюємо сторінку, щоб побачити зміни
+                if (response.success) {
+                    $("#houseEditWindow").hide();
+                    window.location.reload(); 
+                }
             },
             error: function(xhr) {
-                alert("Помилка: " + xhr.responseText);
+                const errorMsg = xhr.responseJSON ? xhr.responseJSON.error : xhr.responseText;
+                alert("Error: " + (errorMsg || "Saving changes failed"));
             }
         });
     });
-
-
-
-    
-
 });
 
+/* Функція неправильного вводу */
 function showError(inputElement, message) {
     inputElement.style.borderColor = '#ff4d4d';
     inputElement.style.boxShadow = '0 0 5px rgba(255, 77, 77, 0.5)';
@@ -314,7 +348,7 @@ function showError(inputElement, message) {
     errorText.style.gridColumn = '1 / -1';
     errorText.style.margin = '5px 0 5px 25px';
 
-    // Вставляємо помилку одразу після контейнера .input-group (із захистом від null-помилок)
+    // Вставляємо помилку одразу після контейнера .input-group
     const container = inputElement.closest('.input-group') || inputElement;
     container.after(errorText);
 }

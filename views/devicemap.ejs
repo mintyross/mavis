@@ -76,7 +76,7 @@
                         <% } %>
 
                         <div class="buttonContainer">
-                            <div class="buttonSmall" id="roomPickerAdd"><p>Add rooms</p></div>
+                            <div class="buttonSmall" id="roomPickerAdd"><p>Add a room</p></div>
                             <div class="buttonSmall Primary" id="roomPickerOKButton" style="backdrop-filter: unset;"><p>Close</p></div>
                         </div>
                     </div>
@@ -88,6 +88,9 @@
                     <div class="objectHeader"><p>Add a room</p></div>
 
                     <form id="addRoomForm" action="/addRoomForm" method="post" novalidate>
+
+                        <input type="hidden" id="addRoomHouseIdInput" name="houseId" value="<%- locals.activeHouseId || '' %>">
+
                         <div class="input-group">
                             <label for="roomName">Room Name</label>
                             <input type="text" id="roomName" name="roomName" placeholder="Living room" required>
@@ -95,7 +98,7 @@
                         
                         <div class="input-group">
                             <label for="roomColor">Select room color:</label>
-                            <input type="color" id="roomColor" value="#ffa600">
+                            <input type="color" id="roomColor" name="roomColor" value="#ffa600">
                         </div>
                         
 
@@ -155,7 +158,7 @@
                         <% } %>
 
                         <div class="buttonContainer">
-                            <div class="buttonSmall" id="devicePickerAdd"><p>New Device</p></div>
+                            <div class="buttonSmall" id="devicePickerAdd"><p>Add a Device</p></div>
                             <div class="buttonSmall Primary" id="devicePickerOKButton" style="backdrop-filter: unset;"><p>Close</p></div>
                         </div>
                     </div>

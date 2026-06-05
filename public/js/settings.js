@@ -1,3 +1,8 @@
+/* 
+    Скрипт містить логіку кнопок, що змінюють тему сторінок, фон та показують логи.
+*/
+
+
 $(document).ready(function() {
     $("#showLogs").on("click", function(e) {
         e.preventDefault();
@@ -12,16 +17,16 @@ $(document).ready(function() {
 
     });
 
-        // СЛУХАЧ ПОДІЙ: Слухаємо зміни САМЕ на інпуті з id="background"
+        // Слухаємо зміни САМЕ на інпуті з id="background"
     $("#background").on("change", function(e) {
         const fileInput = this;
         
-        // 1. Перевіряємо чи користувач дійсно обрав файл
+        // Перевіряємо чи користувач дійсно обрав файл
         if (!fileInput.files || fileInput.files.length === 0) return;
 
         const file = fileInput.files[0];
 
-        // 2. Валідація формату файлу (дозволяємо тільки картинки)
+        // Валідація формату файлу
         const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
         if (!allowedTypes.includes(file.type)) {
             alert('Only images are allowed (JPEG, PNG, WEBP)');
@@ -29,20 +34,20 @@ $(document).ready(function() {
             return;
         }
 
-        // 3. Створюємо віртуальну форму FormData в пам'яті браузера
+        // Створюємо віртуальну форму FormData в пам'яті браузера
         const formData = new FormData();
         formData.append("background", file); // Назва має збігатися з upload.single('background')
 
-        // Візуальний фідбек: злегка приглушуємо фон на час завантаження
+        // Приглушуємо фон на час завантаження
         $("body").css("opacity", "0.7");
 
-        // 4. Відправляємо файл у фоновому режимі (без перезавантаження сторінки)
+        // Відправляємо файл у фоновому режимі (без перезавантаження сторінки)
         $.ajax({
             type: "POST",
             url: "/uploadBackground",
             data: formData,
-            processData: false,  // Забороняє jQuery перетворювати файл на рядок
-            contentType: false,  // Змушує браузер правильно виставити multipart/form-data boundary
+            processData: false,
+            contentType: false,
             dataType: "json",
             success: function(response) {
                 if (response.success) {
@@ -70,7 +75,7 @@ $(document).ready(function() {
     $("#changeTheme").on("click", function(e) {
         e.preventDefault();
 
-        // 1. Надсилаємо запит на перемикання теми
+        // Надсилаємо запит на перемикання теми
         $.ajax({
             type: "POST",
             url: "/updateTheme",
@@ -79,7 +84,6 @@ $(document).ready(function() {
             success: function(response) {
                 if (response.success) {
                    $("#changeTheme p").text(response.newTheme);
-                    // 2. PASS THE STRING DIRECTLY TO CSS: This modifies data-theme="simple" or "classic"
                     $("body").attr("data-theme", response.newTheme);
                     /* window.location.reload();  */
                 }
@@ -98,7 +102,7 @@ $(document).ready(function() {
         // Візуальний фідбек: приглушуємо екран на час обробки
         $("body").css("opacity", "0.7");
 
-        // Замість важкого FormData відправляємо звичайний POST-запит
+        // Відправляємо post-запит
         $.ajax({
             type: "POST",
             url: "/resetBackground",
@@ -107,7 +111,7 @@ $(document).ready(function() {
                 if (response.success) {
                     console.log("Database successfully reset to default wallpaper.");
                     
-                    // МИТТЄВО ОНОВЛЮЄМО ШПАЛЕРИ НА ЕКРАНІ (Використовуємо стабільний абсолютний шлях)
+                    // МИТТЄВО ОНОВЛЮЄМО ШПАЛЕРИ НА ЕКРАНІ
                     $("body").css("background-image", "url('/images/mavis-background.jpg')");
                 }
             },
@@ -124,4 +128,3 @@ $(document).ready(function() {
 
 
 });
-

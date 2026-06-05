@@ -35,11 +35,25 @@ $(document).ready(function() {
     /* Форма додавання кімнати */
     $("#addRoomForm").submit(function(e) {
         e.preventDefault(); // Зупиняємо стандартне перезавантаження сторінки
+        removeErrors();
+        let isValid = true;
 
         const formData = {
             roomName: $("#roomName").val(),
             roomColor: $("#roomColor").val()
         };
+
+        const roomNameInput = document.getElementById('roomName');
+
+        if (!roomNameInput.value) {
+            showError(roomNameInput, "This field must not be blank");
+            isValid = false;
+
+        }
+
+        if (!isValid) {
+            return;
+        }
 
         $.ajax({
             type: "POST",
@@ -93,6 +107,7 @@ $(document).ready(function() {
                     $roomCard.fadeOut(300, function() { 
                         $(this).remove(); 
                     });
+                    window.location.reload();
                 },
                 error: function(xhr) {
                     alert("ERROR: could not delete room: " + xhr.responseText);
@@ -280,18 +295,32 @@ $(document).ready(function() {
     // Форма реєстрації нового пристрою за допомогою ajax
     $("#addDeviceForm").submit(function(e) {
         e.preventDefault();
+        removeErrors();
+        let isValid = true;
 
         const formData = {
             deviceName: $("#deviceName").val(),
             usageScheme: $("#usageScheme").val() 
         };
 
+        const deviceNameInput = document.getElementById('deviceName');
+
+        if (!deviceNameInput.value) {
+            showError(deviceNameInput, "This field must not be blank");
+            isValid = false;
+
+        }
+
+        if (!isValid) {
+            return;
+        }
+
         $.ajax({
             type: "POST",
             url: "/addDeviceForm",
             data: formData,
             success: function(response) {
-                window.location.reload(); // Refresh to let the middleware re-render arrays
+                window.location.reload();
             },
             error: function(xhr) {
                 alert("Registration failed: " + xhr.responseText);
@@ -299,3 +328,28 @@ $(document).ready(function() {
         });
     });
 });
+
+function showError(inputElement, message) {
+    inputElement.style.borderColor = '#ff4d4d';
+    inputElement.style.boxShadow = '0 0 5px rgba(255, 77, 77, 0.5)';
+    
+    const errorText = document.createElement('span'); 
+    errorText.className = 'error-message';
+    errorText.innerText = message;
+    errorText.style.color = '#ff4d4d';
+    errorText.style.fontSize = '0.85rem';
+    errorText.style.display = 'block';
+    errorText.style.gridColumn = '1 / -1';
+    errorText.style.margin = '5px 0 5px 25px';
+
+    const container = inputElement.closest('.input-group') || inputElement;
+    container.after(errorText);
+}
+
+function removeErrors() {
+    document.querySelectorAll('.error-message').forEach(error => error.remove());
+    document.querySelectorAll('.Login input, form input').forEach(input => {
+        input.style.borderColor = '';
+        input.style.boxShadow = '';
+    });
+}

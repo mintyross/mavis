@@ -1,3 +1,6 @@
+/* 
+    Скрипт надсилає введені показники води, газу, світла та інтернету на сервер.
+*/
 $(document).ready(function() {
     $("#resourceUsageForm").on("submit", function(e) {
         e.preventDefault();
@@ -8,12 +11,13 @@ $(document).ready(function() {
         
         $.ajax({
             type: "POST",
-            url: "/resourceUsage", // CHANGE THIS from '/statistics' back to '/resourceUsage'
+            url: "/resourceUsage",
             data: serializedData,
             dataType: "json",
             success: function(response) {
                 if (response.success) {
                     $("#resourceUsageForm")[0].reset();
+                    window.location.reload();
                 }
             },
             error: function(xhr) {

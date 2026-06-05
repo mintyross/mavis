@@ -557,7 +557,7 @@ body[data-theme="classic"] .Logo:hover {
     flex-flow: row;
 }
 
-#addRoomForm .buttonContainer, #addDeviceForm .buttonContainer {
+#addRoomForm .buttonContainer, #addDeviceForm .buttonContainer, #editHouseForm .buttonContainer, #addHouseForm .buttonContainer {
     width: calc(100% - 40px);
 }
 
